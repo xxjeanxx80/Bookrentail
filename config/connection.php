@@ -14,7 +14,7 @@ function bookrentail_normalize_path(string $path): string
 }
 
 /**
- * Parse connection string (postgres://user:pass@host:port/db) thành mảng
+ * Parse connection string (postgres://user:pass@host:port/db or postgresql://...) thành mảng
  */
 function bookrentail_parse_pg_url(?string $url): ?array
 {
@@ -23,7 +23,7 @@ function bookrentail_parse_pg_url(?string $url): ?array
     }
 
     $parts = parse_url($url);
-    if ($parts === false || !isset($parts['scheme']) || $parts['scheme'] !== 'postgres') {
+    if ($parts === false || !isset($parts['scheme']) || !in_array($parts['scheme'], ['postgres', 'postgresql'], true)) {
         return null;
     }
 
@@ -39,19 +39,20 @@ function bookrentail_parse_pg_url(?string $url): ?array
     ];
 }
 
-// Ưu tiên biến môi trường dạng URL (Vercel Postgres/Neon/Supabase)
+// Ưu tiên biến môi trường dạng URL (Vercel Postgres/Neon/Supabase/Render)
 $url = getenv('VERCEL_POSTGRES_URL') ?: getenv('DATABASE_URL') ?: getenv('POSTGRES_URL');
 $url = $url === false ? null : $url;
 $urlConfig = bookrentail_parse_pg_url($url);
 
-$dbHost = $urlConfig['host'] ?? (getenv('DB_HOST') ?: '127.0.0.1');
-$dbUser = $urlConfig['user'] ?? (getenv('DB_USER') ?: 'postgres');
-$dbPass = $urlConfig['pass'] ?? (getenv('DB_PASS') ?: (getenv('DB_PASSWORD') ?: 'postgres'));
-$dbName = $urlConfig['name'] ?? (getenv('DB_NAME') ?: 'mini_project');
+// Render PostgreSQL default credentials
+$dbHost = $urlConfig['host'] ?? (getenv('DB_HOST') ?: 'dpg-d4g8fuqdbo4c73a1tvdg-a.oregon-postgres.render.com');
+$dbUser = $urlConfig['user'] ?? (getenv('DB_USER') ?: 'web2_zmbr_user');
+$dbPass = $urlConfig['pass'] ?? (getenv('DB_PASS') ?: (getenv('DB_PASSWORD') ?: 'fCT4WMrLATKWH6rdW4VGcCLBq2JxW5iZ'));
+$dbName = $urlConfig['name'] ?? (getenv('DB_NAME') ?: 'web2_zmbr');
 $dbPort = (int)($urlConfig['port'] ?? (getenv('DB_PORT') ?: 5432));
 $dbSslMode = $urlConfig['sslmode'] ?? getenv('DB_SSLMODE');
 
-// Với môi trường Vercel/Neon cần sslmode=require (trừ khi override)
+// Với môi trường Vercel/Neon/Render cần sslmode=require (trừ khi override)
 if (!$dbSslMode) {
     $isLocal = in_array($dbHost, ['127.0.0.1', 'localhost'], true);
     $dbSslMode = $isLocal ? 'disable' : 'require';
