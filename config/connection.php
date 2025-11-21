@@ -33,23 +33,21 @@ function bookrentail_parse_pg_url(?string $url): ?array
         'host' => $parts['host'] ?? '127.0.0.1',
         'port' => $parts['port'] ?? 5432,
         'user' => $parts['user'] ?? 'postgres',
-        'pass' => $parts['pass'] ?? '',
+        'pass' => $parts['pass'] ?? 'postgres',
         'name' => isset($parts['path']) ? ltrim($parts['path'], '/') : 'postgres',
         'sslmode' => $queryItems['sslmode'] ?? null,
     ];
 }
 
 // Ưu tiên biến môi trường dạng URL (Vercel Postgres/Neon/Supabase)
-$urlConfig = bookrentail_parse_pg_url(
-    getenv('VERCEL_POSTGRES_URL')
-    ?: getenv('DATABASE_URL')
-    ?: getenv('POSTGRES_URL')
-);
+$url = getenv('VERCEL_POSTGRES_URL') ?: getenv('DATABASE_URL') ?: getenv('POSTGRES_URL');
+$url = $url === false ? null : $url;
+$urlConfig = bookrentail_parse_pg_url($url);
 
 $dbHost = $urlConfig['host'] ?? (getenv('DB_HOST') ?: '127.0.0.1');
-$dbUser = $urlConfig['user'] ?? (getenv('DB_USER') ?: 'root');
-$dbPass = $urlConfig['pass'] ?? (getenv('DB_PASS') ?: (getenv('DB_PASSWORD') ?: ''));
-$dbName = $urlConfig['name'] ?? (getenv('DB_NAME') ?: 'bookrentail');
+$dbUser = $urlConfig['user'] ?? (getenv('DB_USER') ?: 'postgres');
+$dbPass = $urlConfig['pass'] ?? (getenv('DB_PASS') ?: (getenv('DB_PASSWORD') ?: 'postgres'));
+$dbName = $urlConfig['name'] ?? (getenv('DB_NAME') ?: 'mini_project');
 $dbPort = (int)($urlConfig['port'] ?? (getenv('DB_PORT') ?: 5432));
 $dbSslMode = $urlConfig['sslmode'] ?? getenv('DB_SSLMODE');
 
@@ -68,10 +66,15 @@ $connParts = [
     "sslmode=$dbSslMode",
 ];
 
+// Debug: Check if pgsql extension is loaded
+if (!function_exists('pg_connect')) {
+    error_log('pg_connect function does not exist. pgsql extension likely not loaded.');
+    throw new RuntimeException('pg_connect function not available. Check if pgsql extension is enabled in php.ini.');
+}
+
 $databaseConnection = @pg_connect(implode(' ', $connParts));
 if (!$databaseConnection) {
-    $error = function_exists('pg_last_error') ? pg_last_error() : 'Unknown error';
-    throw new RuntimeException('Connection failed: ' . $error);
+    throw new RuntimeException('Connection failed: Unable to connect to PostgreSQL database with provided parameters');
 }
 
 // Tạo alias $con để tương thích với code cũ (sẽ refactor dần)

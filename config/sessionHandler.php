@@ -12,8 +12,8 @@ class PgsqlSessionHandler implements SessionHandlerInterface
 
     public function __construct($connection, string $table = 'sessions')
     {
-        if (!is_resource($connection)) {
-            throw new InvalidArgumentException('A valid PostgreSQL connection resource is required.');
+        if (!$connection instanceof \PgSql\Connection) {
+            throw new InvalidArgumentException('A valid PostgreSQL connection is required.');
         }
 
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $table)) {
