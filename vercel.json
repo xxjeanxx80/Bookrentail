@@ -2,7 +2,6 @@
   "version": 2,
   "functions": {
     "api/index.php": { "runtime": "vercel-php@0.7.4" },
-    "index.php": { "runtime": "vercel-php@0.7.4" },
     "pages/**/*.php": { "runtime": "vercel-php@0.7.4" },
     "Admin/**/*.php": { "runtime": "vercel-php@0.7.4" },
     "includes/**/*.php": { "runtime": "vercel-php@0.7.4" },
