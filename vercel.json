@@ -5,6 +5,7 @@
   },
   "routes": [
     { "src": "/favicon\\.ico", "dest": "/favicon.ico" },
+    { "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot))$", "dest": "/$1" },
     { "src": "/(.*\\.php)$", "dest": "/api/index.php?page=$1" },
     { "src": "/(.*)", "dest": "/api/index.php?page=$1" }
   ]

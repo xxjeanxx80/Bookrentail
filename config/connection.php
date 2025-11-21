@@ -119,9 +119,12 @@ if (!defined('SITE_PATH')) {
     }
 
     $sitePath = $appUrlFromEnv ?: $inferredUrl ?: 'http://localhost/';
-    $sitePath = $appUrlFromEnv ?: $inferredUrl ?: 'http://localhost/';
     define('SITE_PATH', rtrim($sitePath, '/') . '/');
-    define('SITE_PATH', rtrim($sitePath, '/') . '/');
+    
+    // Debug: Log SITE_PATH configuration for troubleshooting
+    if (getenv('ENVIRONMENT') === 'production') {
+        error_log("SITE_PATH configured as: " . SITE_PATH);
+    }
 }
 
 // Đường dẫn thư mục chứa ảnh sách (đọc-only trên Vercel, upload xử lý ngoài)
