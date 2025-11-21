@@ -59,12 +59,14 @@ function bookrentail_resolve_route(string $page, array $routes, string $baseDir)
             return $directFile;
         }
         
-        // Thử với tên file gốc (trường hợp SignIn.php)
-        $caseVariants = [$trimmed, ucfirst($trimmed), strtolower($trimmed), strtoupper($trimmed)];
-        foreach ($caseVariants as $variant) {
-            $variantFile = $baseDir . '/pages/' . $variant . '.php';
-            if (is_file($variantFile)) {
-                return $variantFile;
+        // Case-insensitive file search in pages directory
+        $pagesDir = $baseDir . '/pages/';
+        if (is_dir($pagesDir)) {
+            $files = scandir($pagesDir);
+            foreach ($files as $file) {
+                if (strtolower(pathinfo($file, PATHINFO_FILENAME)) === $trimmed && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
+                    return $pagesDir . $file;
+                }
             }
         }
     }
@@ -80,6 +82,24 @@ function bookrentail_resolve_route(string $page, array $routes, string $baseDir)
 
     if ($real && bookrentail_starts_with($real, $normalizedBase) && is_file($real)) {
         return $real;
+    }
+
+    // Case-insensitive fallback search
+    $pathParts = explode('/', $relative);
+    $filename = array_pop($pathParts);
+    $searchDir = $baseDir . '/' . implode('/', $pathParts);
+    
+    if (is_dir($searchDir)) {
+        $files = scandir($searchDir);
+        foreach ($files as $file) {
+            if (strtolower($file) === strtolower($filename) && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
+                $fullPath = $searchDir . '/' . $file;
+                $realPath = realpath($fullPath);
+                if ($realPath && bookrentail_starts_with($realPath, $normalizedBase)) {
+                    return $realPath;
+                }
+            }
+        }
     }
 
     return null;
@@ -110,17 +130,25 @@ $routes = [
     // Public pages
     'home'               => $baseDir . '/pages/index.php',
     'about'              => $baseDir . '/pages/aboutUs.php',
+    'aboutus'            => $baseDir . '/pages/aboutUs.php',
     'book'               => $baseDir . '/pages/book.php',
     'category'           => $baseDir . '/pages/bookCategory.php',
+    'bookcategory'       => $baseDir . '/pages/bookCategory.php',
     'checkout'           => $baseDir . '/pages/checkout.php',
     'orders'             => $baseDir . '/pages/myOrder.php',
+    'myorder'            => $baseDir . '/pages/myOrder.php',
     'profile'            => $baseDir . '/pages/profile.php',
     'register'           => $baseDir . '/pages/register.php',
+    'signin'             => $baseDir . '/pages/SignIn.php',
     'login'              => $baseDir . '/pages/SignIn.php',
     'logout'             => $baseDir . '/pages/logout.php',
     'search'             => $baseDir . '/pages/search.php',
     'terms'              => $baseDir . '/pages/termsAndCondition.php',
+    'termsandcondition'  => $baseDir . '/pages/termsAndCondition.php',
     'thanks'             => $baseDir . '/pages/thankYou.php',
+    'thankyou'           => $baseDir . '/pages/thankYou.php',
+    'test-rewrite'       => $baseDir . '/pages/test_rewrite.php',
+    'testrewrite'        => $baseDir . '/pages/test_rewrite.php',
 
     // Admin aliases
     'admin'                  => $baseDir . '/Admin/login.php',
