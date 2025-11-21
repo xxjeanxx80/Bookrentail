@@ -23,10 +23,10 @@ if (isset($_POST['submit'])) {
     $passwordHash = md5($password);
     
     $sql = "SELECT * FROM admin WHERE email='$email' AND password='$passwordHash'";
-    $res = mysqli_query($con, $sql);
-    
-    if ($res && mysqli_num_rows($res) > 0) {
-        $row = mysqli_fetch_assoc($res);
+    $res = pg_query($con, $sql);
+
+    if ($res && pg_num_rows($res) > 0) {
+        $row = pg_fetch_assoc($res);
         $_SESSION['ADMIN_LOGIN'] = 'yes';
         $_SESSION['ADMIN_email'] = $email;
         

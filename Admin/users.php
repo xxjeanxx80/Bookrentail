@@ -21,7 +21,7 @@ if (isset($_GET['type']) && $_GET['type'] != ' ') {
     if ($type == 'delete') {
         $id = (int)$_GET['id'];
         $deleteSql = "DELETE FROM users WHERE id=$id";
-        mysqli_query($con, $deleteSql);
+        pg_query($con, $deleteSql);
         // Redirect để tránh resubmit form
         header('Location: users.php');
         exit;
@@ -32,7 +32,7 @@ if (isset($_GET['type']) && $_GET['type'] != ' ') {
 require(__DIR__ . '/topNav.php');
 
 $sql = "select * from users order by id desc";
-$res = mysqli_query($con, $sql);
+$res = pg_query($con, $sql);
 ?>
 <!--Main layout-->
 <main>
@@ -55,7 +55,7 @@ $res = mysqli_query($con, $sql);
             </thead>
             <tbody>
                 <?php
-        while ($row = mysqli_fetch_assoc($res)) { ?>
+        while ($row = pg_fetch_assoc($res)) { ?>
                 <tr>
                     <td> <?php echo $row['id'] ?> </td>
                     <td> <?php echo $row['name'] ?> </td>

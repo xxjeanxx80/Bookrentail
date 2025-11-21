@@ -34,8 +34,8 @@ $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 // Biến để lưu ảnh cũ khi edit (cần lấy trước để dùng khi có lỗi hoặc không upload ảnh mới)
 $currentImg = '';
 if ($id > 0) {
-    $oldImgSql = mysqli_query($con, "SELECT img FROM books WHERE id=$id");
-    if ($oldImgRow = mysqli_fetch_assoc($oldImgSql)) {
+    $oldImgSql = pg_query($con, "SELECT img FROM books WHERE id=$id");
+    if ($oldImgRow = pg_fetch_assoc($oldImgSql)) {
         $currentImg = $oldImgRow['img'];
     } else {
         // Book không tồn tại, redirect về books.php
@@ -46,8 +46,8 @@ if ($id > 0) {
 
 // Lấy thông tin book nếu đang edit (chỉ khi không có POST submit - tránh mất dữ liệu khi có lỗi)
 if ($id > 0 && !isset($_POST['submit'])) {
-    $sql = mysqli_query($con, "SELECT * FROM books WHERE id=$id");
-    if ($row = mysqli_fetch_assoc($sql)) {
+    $sql = pg_query($con, "SELECT * FROM books WHERE id=$id");
+    if ($row = pg_fetch_assoc($sql)) {
         $category_id = $row['category_id'];
         $ISBN = $row['ISBN'];
         $name = $row['name'];
@@ -94,10 +94,10 @@ if (isset($_POST['submit'])) {
         $msg = "Please enter description";
     } else {
         // Check if book name already exists (except current book)
-        $nameEscaped = mysqli_real_escape_string($con, $name);
-        $checkSql = mysqli_query($con, "SELECT id FROM books WHERE name='$nameEscaped'");
-        if (mysqli_num_rows($checkSql) > 0) {
-            $existing = mysqli_fetch_assoc($checkSql);
+        $nameEscaped = pg_escape_string($con, $name);
+        $checkSql = pg_query($con, "SELECT id FROM books WHERE name='$nameEscaped'");
+        if (pg_num_rows($checkSql) > 0) {
+            $existing = pg_fetch_assoc($checkSql);
             if (!$id || $existing['id'] != $id) {
                 $msg = "Book already exists";
             }
@@ -145,14 +145,14 @@ if (isset($_POST['submit'])) {
         }
         
         // Thực hiện query và redirect (nếu không có lỗi)
-        if (empty($msg)) {
-            if (mysqli_query($con, $sql)) {
-                header('Location: books.php');
-                exit;
-            } else {
-                $error = "Error: " . mysqli_error($con);
-            }
-        }
+                if (empty($msg)) {
+                    if (pg_query($con, $sql)) {
+                        header('Location: books.php');
+                        exit;
+                    } else {
+                        $error = "Error: " . pg_last_error($con);
+                    }
+                }
     }
     
     // Nếu có lỗi và đang edit, giữ lại ảnh cũ để hiển thị trong form
@@ -189,8 +189,8 @@ require(__DIR__ . '/topNav.php');
                     <select class="form-select" name="category_id">
                         <option class="">Select Category</option>
                         <?php
-            $categorySql = mysqli_query($con, "select id, category from categories order by category asc");
-            while ($row = mysqli_fetch_assoc($categorySql)) {
+            $categorySql = pg_query($con, "select id, category from categories order by category asc");
+            while ($row = pg_fetch_assoc($categorySql)) {
               if ($row['id'] == $category_id) {
                 echo "<option selected value=" . $row['id'] . ">" . $row['category'] . "</option>";
               } else {

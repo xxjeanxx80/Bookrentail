@@ -22,12 +22,12 @@ if (isset($_GET['type']) && $_GET['type'] != ' ') {
     
     if ($type == 'status') {
         $status = ($_GET['operation'] == 'active') ? 1 : 0;
-        mysqli_query($con, "UPDATE books SET status=$status WHERE id=$id");
+        pg_query($con, "UPDATE books SET status=$status WHERE id=$id");
     } elseif ($type == 'best_seller') {
         $bestSeller = ($_GET['operation'] == 'active') ? 1 : 0;
-        mysqli_query($con, "UPDATE books SET best_seller=$bestSeller WHERE id=$id");
+        pg_query($con, "UPDATE books SET best_seller=$bestSeller WHERE id=$id");
     } elseif ($type == 'delete') {
-        mysqli_query($con, "DELETE FROM books WHERE id=$id");
+        pg_query($con, "DELETE FROM books WHERE id=$id");
     }
     
     header('Location: books.php');
@@ -35,11 +35,11 @@ if (isset($_GET['type']) && $_GET['type'] != ' ') {
 }
 
 // Lấy danh sách sách
-$sql = "SELECT books.*, categories.category 
-        FROM books 
-        LEFT JOIN categories ON books.category_id=categories.id 
+$sql = "SELECT books.*, categories.category
+        FROM books
+        LEFT JOIN categories ON books.category_id=categories.id
         ORDER BY books.id ASC";
-$res = mysqli_query($con, $sql);
+$res = pg_query($con, $sql);
 
 // Bây giờ mới require topNav (đã có connection và function rồi, nên require_once sẽ skip)
 require(__DIR__ . '/topNav.php');
@@ -71,7 +71,7 @@ require(__DIR__ . '/topNav.php');
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = mysqli_fetch_assoc($res)): ?>
+                <?php while ($row = pg_fetch_assoc($res)): ?>
                 <tr>
                     <td><?php echo htmlspecialchars($row['id']) ?></td>
                     <td><?php echo htmlspecialchars($row['ISBN']) ?></td>

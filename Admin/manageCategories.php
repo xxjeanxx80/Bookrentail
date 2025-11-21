@@ -21,8 +21,8 @@ $res = '';
 
 // Lấy thông tin category nếu đang edit (chỉ khi không có POST submit - tránh mất dữ liệu khi có lỗi)
 if ($id > 0 && !isset($_POST['submit'])) {
-    $sql = mysqli_query($con, "SELECT * FROM categories WHERE id=$id");
-    if ($row = mysqli_fetch_assoc($sql)) {
+    $sql = pg_query($con, "SELECT * FROM categories WHERE id=$id");
+    if ($row = pg_fetch_assoc($sql)) {
         $categories = $row['category'];
     } else {
         header('Location: categories.php');
@@ -36,13 +36,13 @@ if (isset($_POST['submit'])) {
     $categories = $category; // Giữ giá trị từ POST để hiển thị lại trong form nếu có lỗi
     
     // Check duplicate (trừ category hiện tại nếu đang edit)
-    $checkSql = mysqli_query($con, "SELECT id FROM categories WHERE category='$category'");
-    if (mysqli_num_rows($checkSql) > 0) {
-        $existing = mysqli_fetch_assoc($checkSql);
-        if (!$id || $existing['id'] != $id) {
-            $msg = "Category already exists";
+        $checkSql = pg_query($con, "SELECT id FROM categories WHERE category='$category'");
+        if (pg_num_rows($checkSql) > 0) {
+            $existing = pg_fetch_assoc($checkSql);
+            if (!$id || $existing['id'] != $id) {
+                $msg = "Category already exists";
+            }
         }
-    }
     
     // Thực hiện query và redirect (nếu không có lỗi)
     if (empty($msg)) {
@@ -52,11 +52,11 @@ if (isset($_POST['submit'])) {
             $sql = "INSERT INTO categories(category, status) VALUES('$category', 1)";
         }
         
-        if (mysqli_query($con, $sql)) {
+        if (pg_query($con, $sql)) {
             header('Location: categories.php');
             exit;
         } else {
-            $res = "Error: " . mysqli_error($con);
+            $res = "Error: " . pg_last_error($con);
         }
     }
 }

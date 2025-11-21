@@ -3,9 +3,9 @@ $categoryId = isset($_GET['id']) ? (int)$_GET['id'] : '';
 $getProduct = $categoryId ? getProduct($con, '', $categoryId) : [];
 
 // Lấy danh sách danh mục
-$catRes = mysqli_query($con, "SELECT id, category FROM categories WHERE status = 1 ORDER BY category ASC");
+$catRes = pg_query($con, "SELECT id, category FROM categories WHERE status = 1 ORDER BY category ASC");
 $catArr = [];
-while ($row = mysqli_fetch_assoc($catRes)) {
+while ($row = pg_fetch_assoc($catRes)) {
     $catArr[] = $row;
 }
 ?>

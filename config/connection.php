@@ -13,12 +13,13 @@ $dbHost = getenv('DB_HOST') ?: '127.0.0.1';
 $dbUser = getenv('DB_USER') ?: 'root';
 $dbPass = getenv('DB_PASS') ?: (getenv('DB_PASSWORD') ?: '');
 $dbName = getenv('DB_NAME') ?: 'bookrentail';
-$dbPort = getenv('DB_PORT') ?: 3306;
+$dbPort = getenv('DB_PORT') ?: 5432;
 
 // Kết nối cơ sở dữ liệu
-$databaseConnection = mysqli_connect($dbHost, $dbUser, $dbPass, $dbName, (int)$dbPort);
-if (!$databaseConnection || $databaseConnection->connect_error) {
-    die('Connection failed: ' . ($databaseConnection->connect_error ?? mysqli_connect_error()));
+$conn_string = "host=$dbHost port=$dbPort dbname=$dbName user=$dbUser password=$dbPass";
+$databaseConnection = pg_connect($conn_string);
+if (!$databaseConnection) {
+    die('Connection failed: ' . pg_last_error());
 }
 
 // Tạo alias $con để tương thích với code cũ (sẽ refactor dần)

@@ -7,14 +7,14 @@ if (!isset($_SESSION['USER_LOGIN'])) {
 
 if (isset($_GET['type']) && $_GET['type'] == 'cancel') {
     $id = (int)$_GET['id'];
-    mysqli_query($con, "UPDATE orders SET order_status=4 WHERE id=$id");
-    
-    $qtyRes = mysqli_query($con, "SELECT books.qty, books.id FROM orders
+    pg_query($con, "UPDATE orders SET order_status=4 WHERE id=$id");
+
+    $qtyRes = pg_query($con, "SELECT books.qty, books.id FROM orders
                                   JOIN order_detail ON orders.id=order_detail.order_id
                                   JOIN books ON order_detail.book_id=books.id
                                   WHERE order_detail.order_id=$id");
-    if ($qtyRow = mysqli_fetch_assoc($qtyRes)) {
-        mysqli_query($con, "UPDATE books SET qty = qty + 1 WHERE id={$qtyRow['id']}");
+    if ($qtyRow = pg_fetch_assoc($qtyRes)) {
+        pg_query($con, "UPDATE books SET qty = qty + 1 WHERE id={$qtyRow['id']}");
     }
     header('Location: myOrder.php');
     exit;
@@ -47,12 +47,12 @@ document.title = "My Orders | Book Rental";
         <tbody>
             <?php
             $userId = (int)$_SESSION['USER_ID'];
-            $res = mysqli_query($con, "SELECT orders.*, name, status_name FROM orders
+            $res = pg_query($con, "SELECT orders.*, name, status_name FROM orders
                                        JOIN order_detail ON orders.id=order_detail.order_id
                                        JOIN books ON order_detail.book_id=books.id
                                        JOIN order_status ON orders.order_status=order_status.id
                                        WHERE user_id=$userId ORDER BY orders.id DESC");
-            while ($row = mysqli_fetch_assoc($res)): 
+            while ($row = pg_fetch_assoc($res)):
                 $canCancel = !in_array($row['status_name'], ['Cancelled', 'Returned']);
             ?>
             <tr>

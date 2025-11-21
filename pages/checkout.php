@@ -31,28 +31,28 @@ if (isset($_POST['submit'])) {
     $paymentMethod = trim($_POST['paymentMethod']);
     
     // Escape for SQL
-    $address = mysqli_real_escape_string($con, $address);
-    $address2 = mysqli_real_escape_string($con, $address2);
-    $paymentMethod = mysqli_real_escape_string($con, $paymentMethod);
-    
+    $address = pg_escape_string($con, $address);
+    $address2 = pg_escape_string($con, $address2);
+    $paymentMethod = pg_escape_string($con, $paymentMethod);
+
     $userId = (int)$_SESSION['USER_ID'];
     $paymentStatus = ($paymentMethod == 'COD') ? 'success' : 'pending';
-    
+
     date_default_timezone_set('Asia/Kolkata');
     $date = date('Y-m-d H:i:s');
-    
+
     // Insert order
     $sql = "INSERT INTO orders(user_id, address, address2, pin, payment_method, total, payment_status, order_status, date, duration)
-            VALUES ($userId, '$address', '$address2', $pin, '$paymentMethod', $totalPrice, '$paymentStatus', 1, '$date', $duration)";
-    mysqli_query($con, $sql);
-    
-    $orderId = mysqli_insert_id($con);
-    
+            VALUES ($userId, '$address', '$address2', $pin, '$paymentMethod', $totalPrice, '$paymentStatus', 1, '$date', $duration) RETURNING id";
+    $result = pg_query($con, $sql);
+    $orderRow = pg_fetch_assoc($result);
+    $orderId = $orderRow['id'];
+
     // Insert order detail
-    mysqli_query($con, "INSERT INTO order_detail(order_id, book_id, price, time) VALUES ($orderId, $bookId, $totalPrice, $duration)");
-    
+    pg_query($con, "INSERT INTO order_detail(order_id, book_id, price, time) VALUES ($orderId, $bookId, $totalPrice, $duration)");
+
     // Update book quantity
-    mysqli_query($con, "UPDATE books SET qty = qty - 1 WHERE id = $bookId");
+    pg_query($con, "UPDATE books SET qty = qty - 1 WHERE id = $bookId");
     
     header("Location: thankYou.php?orderId=$orderId");
     exit;

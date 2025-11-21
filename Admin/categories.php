@@ -22,9 +22,9 @@ if (isset($_GET['type']) && $_GET['type'] != ' ') {
     if ($type == 'status') {
         $operation = trim($_GET['operation']);
         $status = ($operation == 'active') ? 1 : 0;
-        mysqli_query($con, "UPDATE categories SET status=$status WHERE id=$id");
+        pg_query($con, "UPDATE categories SET status=$status WHERE id=$id");
     } elseif ($type == 'delete') {
-        mysqli_query($con, "DELETE FROM categories WHERE id=$id");
+        pg_query($con, "DELETE FROM categories WHERE id=$id");
     }
     
     header('Location: categories.php');
@@ -34,7 +34,7 @@ if (isset($_GET['type']) && $_GET['type'] != ' ') {
 require(__DIR__ . '/topNav.php');
 
 $sql = "select * from categories order by category asc";
-$res = mysqli_query($con, $sql);
+$res = pg_query($con, $sql);
 ?>
 <!--Main layout-->
 <main>
@@ -55,7 +55,7 @@ $res = mysqli_query($con, $sql);
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = mysqli_fetch_assoc($res)): ?>
+                <?php while ($row = pg_fetch_assoc($res)): ?>
                 <tr>
                     <td><?php echo htmlspecialchars($row['category']) ?></td>
                     <td>

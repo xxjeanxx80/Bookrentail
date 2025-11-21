@@ -5,8 +5,8 @@ if (!isset($_SESSION['USER_LOGIN'])) {
   exit;
 }
 $userId = (int)$_SESSION['USER_ID'];
-$res = mysqli_query($con, "SELECT * FROM users WHERE id=$userId");
-$row = mysqli_fetch_assoc($res);
+$res = pg_query($con, "SELECT * FROM users WHERE id=$userId");
+$row = pg_fetch_assoc($res);
 $nameAuto = $row['name'];
 $emailAuto = $row['email'];
 $mobileAuto = $row['mobile'];
@@ -33,13 +33,13 @@ if (isset($_POST['submit'])) {
         $msg = "Incorrect password";
     } else {
         // Escape for SQL
-        $name = mysqli_real_escape_string($con, $name);
-        $email = mysqli_real_escape_string($con, $email);
-        $mobile = mysqli_real_escape_string($con, $mobile);
-        
+        $name = pg_escape_string($con, $name);
+        $email = pg_escape_string($con, $email);
+        $mobile = pg_escape_string($con, $mobile);
+
         // Update profile
         $sql = "UPDATE users SET name='$name', email='$email', mobile='$mobile' WHERE id=$userId";
-        if (mysqli_query($con, $sql)) {
+        if (pg_query($con, $sql)) {
             $_SESSION['USER_NAME'] = $name;
             $msg = "Profile updated successfully. Changes will be visible next time you login.";
             // Refresh data

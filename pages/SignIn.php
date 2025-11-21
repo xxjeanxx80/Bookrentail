@@ -10,13 +10,13 @@ if (isset($_POST['submit'])) {
     $email = trim($_POST['email']);
     $password = md5(trim($_POST['password']));
     $rememberMe = isset($_POST['remember_me']) ? true : false;
-    
-    $email = mysqli_real_escape_string($con, $email);
+
+    $email = pg_escape_string($con, $email);
     $sql = "SELECT * FROM users WHERE email='$email' AND password='$password'";
-    $res = mysqli_query($con, $sql);
-    
-    if ($res && mysqli_num_rows($res) > 0) {
-        $row = mysqli_fetch_assoc($res);
+    $res = pg_query($con, $sql);
+
+    if ($res && pg_num_rows($res) > 0) {
+        $row = pg_fetch_assoc($res);
         $_SESSION['USER_LOGIN'] = 'yes';
         $_SESSION['USER_ID'] = $row['id'];
         $_SESSION['USER_NAME'] = $row['name'];

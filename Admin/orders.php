@@ -21,16 +21,16 @@ if (isset($_POST['status_id'])) {
     
     // Nếu đơn hàng bị hủy hoặc trả lại, tăng lại số lượng sách
     if (in_array($statusId, [4, 6])) {
-        $qtyRes = mysqli_query($con, "SELECT books.id FROM orders
+        $qtyRes = pg_query($con, "SELECT books.id FROM orders
                                        JOIN order_detail ON orders.id=order_detail.order_id
                                        JOIN books ON order_detail.book_id=books.id
                                        WHERE order_detail.order_id=$orderId");
-        if ($qtyRow = mysqli_fetch_assoc($qtyRes)) {
-            mysqli_query($con, "UPDATE books SET qty = qty + 1 WHERE id={$qtyRow['id']}");
+        if ($qtyRow = pg_fetch_assoc($qtyRes)) {
+            pg_query($con, "UPDATE books SET qty = qty + 1 WHERE id={$qtyRow['id']}");
         }
     }
-    
-    mysqli_query($con, "UPDATE orders SET order_status=$statusId WHERE id=$orderId");
+
+    pg_query($con, "UPDATE orders SET order_status=$statusId WHERE id=$orderId");
     header('Location: orders.php');
     exit;
 }
@@ -61,12 +61,12 @@ require(__DIR__ . '/topNav.php');
             </thead>
             <tbody>
                 <?php
-        $res = mysqli_query($con, "SELECT orders.*, name, status_name FROM orders
+        $res = pg_query($con, "SELECT orders.*, name, status_name FROM orders
                                     JOIN order_detail ON orders.id=order_detail.order_id
                                     JOIN books ON order_detail.book_id=books.id
                                     JOIN order_status ON orders.order_status=order_status.id
                                     ORDER BY date DESC");
-        while ($row = mysqli_fetch_assoc($res)):
+        while ($row = pg_fetch_assoc($res)):
             $canChange = !in_array($row['status_name'], ['Returned', 'Cancelled']);
         ?>
                 <tr>
@@ -86,8 +86,8 @@ require(__DIR__ . '/topNav.php');
                             <select class="form-select" name="status_id">
                                 <option value="">Select Status</option>
                                 <?php
-                                $statusSql = mysqli_query($con, "SELECT * FROM order_status ORDER BY status_name");
-                                while ($statusRow = mysqli_fetch_assoc($statusSql)):
+                                $statusSql = pg_query($con, "SELECT * FROM order_status ORDER BY status_name");
+                                while ($statusRow = pg_fetch_assoc($statusSql)):
                                 ?>
                                 <option value="<?php echo $statusRow['id'] ?>"><?php echo $statusRow['status_name'] ?></option>
                                 <?php endwhile; ?>

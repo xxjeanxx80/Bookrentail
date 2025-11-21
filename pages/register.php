@@ -27,23 +27,23 @@ if (isset($_POST['submit'])) {
         $msg = "Please enter a password";
     } else {
         // Escape for SQL
-        $name = mysqli_real_escape_string($con, $name);
-        $email = mysqli_real_escape_string($con, $email);
-        $mobile = mysqli_real_escape_string($con, $mobile);
-        
+        $name = pg_escape_string($con, $name);
+        $email = pg_escape_string($con, $email);
+        $mobile = pg_escape_string($con, $mobile);
+
         // Check if email exists
-        $check = mysqli_query($con, "SELECT id FROM users WHERE email='$email'");
-        if (mysqli_num_rows($check) > 0) {
+        $check = pg_query($con, "SELECT id FROM users WHERE email='$email'");
+        if (pg_num_rows($check) > 0) {
             $msg = "Email already exists. Please login";
         } else {
             // Register user
             $passwordHash = md5($password);
             date_default_timezone_set('Asia/Kolkata');
             $doj = date('Y-m-d H:i:s');
-            
-            $sql = "INSERT INTO users(name, email, mobile, password, doj) 
+
+            $sql = "INSERT INTO users(name, email, mobile, password, doj)
                     VALUES ('$name', '$email', '$mobile', '$passwordHash', '$doj')";
-            if (mysqli_query($con, $sql)) {
+            if (pg_query($con, $sql)) {
                 header('Location: SignIn.php');
                 exit;
             } else {

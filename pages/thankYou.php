@@ -2,7 +2,7 @@
 <?php
   $orderId = '';
   if (isset($_GET['orderId'])) {
-    $orderId = mysqli_real_escape_string($con, $_GET['orderId']);
+    $orderId = pg_escape_string($con, $_GET['orderId']);
   }
 ?>
 <div class="container py-5 justify-content-center">
