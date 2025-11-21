@@ -62,7 +62,7 @@ if (isset($_POST['submit'])) {
 }
 
 // Sau khi xử lý xong tất cả logic, mới require topNav để hiển thị HTML
-require('topNav.php');
+require(__DIR__ . '/topNav.php');
 
 ?>
 <main>

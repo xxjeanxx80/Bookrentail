@@ -31,7 +31,7 @@ if (isset($_GET['type']) && $_GET['type'] != ' ') {
     exit;
 }
 
-require('topNav.php');
+require(__DIR__ . '/topNav.php');
 
 $sql = "select * from categories order by category asc";
 $res = mysqli_query($con, $sql);

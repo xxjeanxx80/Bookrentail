@@ -42,7 +42,7 @@ $sql = "SELECT books.*, categories.category
 $res = mysqli_query($con, $sql);
 
 // Bây giờ mới require topNav (đã có connection và function rồi, nên require_once sẽ skip)
-require('topNav.php');
+require(__DIR__ . '/topNav.php');
 ?>
 <!--Main layout-->
 <main>

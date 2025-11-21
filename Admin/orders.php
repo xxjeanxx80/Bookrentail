@@ -35,7 +35,7 @@ if (isset($_POST['status_id'])) {
     exit;
 }
 
-require('topNav.php');
+require(__DIR__ . '/topNav.php');
 ?>
 <!--Main layout-->
 <main>

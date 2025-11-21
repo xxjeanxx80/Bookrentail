@@ -29,7 +29,7 @@ if (isset($_GET['type']) && $_GET['type'] != ' ') {
 }
 
 // Sau khi xử lý xong tất cả logic, mới require topNav để hiển thị HTML
-require('topNav.php');
+require(__DIR__ . '/topNav.php');
 
 $sql = "select * from users order by id desc";
 $res = mysqli_query($con, $sql);
