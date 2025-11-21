@@ -15,7 +15,7 @@ if (!isset($_SESSION['USER_LOGIN'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Icon -->
-    <link rel="shortcut icon" href="../assets/img/logois.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="<?php echo SITE_PATH; ?>assets/img/logois.png" type="image/x-icon" />
     <!-- Default CSS -->
     <link rel="stylesheet" href="../assets/css/Style.css" />
     <link rel="stylesheet" href="../assets/css/responsive.css" />
@@ -34,7 +34,7 @@ if (!isset($_SESSION['USER_LOGIN'])) {
     <section id="#navbar">
         <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow lh-1">
             <a class="navbar-brand img-fluid ms-2" href="index.php">
-                <img src="../assets/img/logovnu.png" alt="logo" height="40vw" /></a>
+                <img src="<?php echo SITE_PATH; ?>assets/img/logovnu.png" alt="logo" height="40vw" /></a>
             <button class="navbar-toggler" title="Menu" type="button" data-bs-toggle="collapse"
                 data-bs-target="#mynavbar">
                 <span style="font-size: 1.8465rem; color: #fff">

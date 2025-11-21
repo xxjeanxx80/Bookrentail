@@ -118,6 +118,8 @@ if (!defined('SITE_PATH')) {
     }
 
     $sitePath = $appUrlFromEnv ?: $inferredUrl ?: 'http://localhost/';
+    $sitePath = $appUrlFromEnv ?: $inferredUrl ?: 'http://localhost/';
+    define('SITE_PATH', rtrim($sitePath, '/') . '/');
     define('SITE_PATH', rtrim($sitePath, '/') . '/');
 }
 
