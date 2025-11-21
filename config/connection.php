@@ -8,11 +8,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Đọc thông số DB từ biến môi trường (phù hợp khi deploy)
-$dbHost = getenv('DB_HOST') ?: 'localhost';
+// Đọc thông số DB từ biến môi trường (ưu tiên DB_* trên Vercel)
+$dbHost = getenv('DB_HOST') ?: '127.0.0.1';
 $dbUser = getenv('DB_USER') ?: 'root';
-$dbPass = getenv('DB_PASSWORD') ?: '';
-$dbName = getenv('DB_NAME') ?: 'mini_project';
+$dbPass = getenv('DB_PASS') ?: (getenv('DB_PASSWORD') ?: '');
+$dbName = getenv('DB_NAME') ?: 'bookrentail';
 $dbPort = getenv('DB_PORT') ?: 3306;
 
 // Kết nối cơ sở dữ liệu

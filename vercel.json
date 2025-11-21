@@ -1,16 +1,12 @@
 {
   "version": 2,
   "functions": {
-    "index.php": { "runtime": "vercel-php@0.5.2" },
-    "pages/**/*.php": { "runtime": "vercel-php@0.5.2" },
-    "Admin/**/*.php": { "runtime": "vercel-php@0.5.2" },
-    "includes/**/*.php": { "runtime": "vercel-php@0.5.2" },
-    "config/**/*.php": { "runtime": "vercel-php@0.5.2" }
+    "api/index.php": { "runtime": "vercel-php@0.5.2" }
   },
   "routes": [
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/(Admin|includes|config|Database|pages)/(.*)", "dest": "/$1/$2" },
     { "src": "/favicon.ico", "dest": "/favicon.ico" },
-    { "src": "/(.*)", "dest": "/index.php?page=$1" }
+    { "src": "/(.*)", "dest": "/api/index.php?page=$1" }
   ]
 }
