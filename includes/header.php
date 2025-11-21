@@ -17,8 +17,8 @@ if (!isset($_SESSION['USER_LOGIN'])) {
     <!-- Icon -->
     <link rel="shortcut icon" href="<?php echo SITE_PATH; ?>assets/img/logois.png" type="image/x-icon" />
     <!-- Default CSS -->
-    <link rel="stylesheet" href="../assets/css/Style.css" />
-    <link rel="stylesheet" href="../assets/css/responsive.css" />
+    <link rel="stylesheet" href="<?php echo SITE_PATH; ?>assets/css/Style.css" />
+    <link rel="stylesheet" href="<?php echo SITE_PATH; ?>assets/css/responsive.css" />
     <!-- Bootstrap -->
     <link id="theme" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Font Awesome Fonts-->
