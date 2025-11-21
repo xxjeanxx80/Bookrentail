@@ -32,15 +32,40 @@ function bookrentail_resolve_route(string $page, array $routes, string $baseDir)
         $slug = 'home';
     }
 
+    // Thử tìm slug trực tiếp
     if (isset($routes[$slug])) {
         return $routes[$slug];
     }
 
-    // Nếu người dùng yêu cầu đuôi .php (vd: book.php) thì bỏ đuôi để thử map
+    // Xử lý trường hợp người dùng truy cập trực tiếp file .php (vd: SignIn.php)
     if (str_ends_with($slug, '.php')) {
-        $trimmed = substr($slug, 0, -4);
+        $trimmed = substr($slug, 0, -4); // Bỏ đuôi .php
+        
+        // Thử tìm với tên đã bỏ .php
         if (isset($routes[$trimmed])) {
             return $routes[$trimmed];
+        }
+        
+        // Thử tìm tương ứng hoa/thường trong routes
+        foreach ($routes as $routeSlug => $routeFile) {
+            if (strtolower($routeSlug) === $trimmed) {
+                return $routeFile;
+            }
+        }
+        
+        // Thử truy cập trực tiếp file trong thư mục pages/
+        $directFile = $baseDir . '/pages/' . $trimmed . '.php';
+        if (is_file($directFile)) {
+            return $directFile;
+        }
+        
+        // Thử với tên file gốc (trường hợp SignIn.php)
+        $caseVariants = [$trimmed, ucfirst($trimmed), strtolower($trimmed), strtoupper($trimmed)];
+        foreach ($caseVariants as $variant) {
+            $variantFile = $baseDir . '/pages/' . $variant . '.php';
+            if (is_file($variantFile)) {
+                return $variantFile;
+            }
         }
     }
 

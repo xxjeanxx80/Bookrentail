@@ -5,8 +5,9 @@
   },
   "routes": [
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
-    { "src": "/(Admin|includes|config|Database|pages)/(.*)", "dest": "/$1/$2" },
-    { "src": "/favicon.ico", "dest": "/favicon.ico" },
+    { "src": "/(Admin|css|js|img)/(.*)", "dest": "/$1/$2" },
+    { "src": "/favicon\\.ico", "dest": "/favicon.ico" },
+    { "src": "/(.*\\.php)$", "dest": "/api/index.php?page=$1" },
     { "src": "/(.*)", "dest": "/api/index.php?page=$1" }
   ]
 }
