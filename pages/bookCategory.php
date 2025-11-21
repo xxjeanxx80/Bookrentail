@@ -44,7 +44,7 @@ document.title = "Book Categories | Book Rental";
                 <?php foreach ($getProduct as $list) { ?>
                 <div class="col-6 col-md-4 col-lg-3 ">
                     <div class="card border-dark mt-3 shadow-sm product">
-                        <img id="card-img" alt="Book Image" src="<?php echo BOOK_IMAGE_SITE_PATH . $list['img'] ?>"
+                        <img id="card-img" alt="Book Image" src="<?php echo bookrentail_get_book_image_url($list['img']) ?>"
                             class="card-img-top rounded" height="356rem" width="60rem" />
                         <div class="overlay">
                             <a href="book.php?id=<?php echo $list['id'] ?>"

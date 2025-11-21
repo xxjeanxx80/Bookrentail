@@ -27,7 +27,7 @@ document.title = "<?php echo $book['name'] ?> | Book Rental";
     <div class="row mb-3">
         <div class="col-6 col-sm-6 col-md-3 mt-3">
             <img class="card card-img-top border-dark rounded"
-                src="<?php echo BOOK_IMAGE_SITE_PATH . $book['img'] ?>" height="396rem" width="260rem">
+                src="<?php echo bookrentail_get_book_image_url($book['img']) ?>" height="396rem" width="260rem">
         </div>
         <div class="col-12 col-md-9">
             <h2 id="bookName" class="text-uppercase font-weight-bold"><?php echo $book['name'] ?></h2>

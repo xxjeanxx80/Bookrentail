@@ -54,7 +54,7 @@
         $orderBy = 'id desc';
         $getProduct = getProduct($con, 4, '', '', $orderBy);
         foreach ($getProduct as $list) {
-            $img = BOOK_IMAGE_SITE_PATH . $list['img'];
+            $img = bookrentail_get_book_image_url($list['img']);
         ?>
         <div class="col-6 col-md-4 col-lg-3">
             <div class=" card border-dark mt-3 shadow-sm product">
@@ -85,7 +85,7 @@
         <?php
         $getBook = getBook($con);
         foreach ($getBook as $list) {
-            $img = BOOK_IMAGE_SITE_PATH . $list['img'];
+            $img = bookrentail_get_book_image_url($list['img']);
         ?>
         <div class="col-6 col-md-4 col-lg-3">
             <div class="card border-dark mt-3 shadow-sm product">

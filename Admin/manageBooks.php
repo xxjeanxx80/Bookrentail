@@ -27,6 +27,7 @@ $description = '';
 $short_desc = '';
 $error = '';
 $msg = '';
+$uploadError = '';
 
 // Lấy ID từ GET (nếu đang edit)
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -72,7 +73,8 @@ if (isset($_POST['submit'])) {
     $qty = (int)$_POST['qty'];
     $short_desc = trim($_POST['short_desc']);
     $description = trim($_POST['description']);
-    
+    $newImageUploaded = !empty($_FILES['img']['name']);
+
     // Validation
     if (empty($category_id)) {
         $msg = "Please select a category";
@@ -105,54 +107,53 @@ if (isset($_POST['submit'])) {
     }
     
     if (empty($msg)) {
+        $sql = '';
         if ($id > 0) {
-            // Update existing book
-            // Nếu có upload ảnh mới, sử dụng ảnh mới
-            if (!empty($_FILES['img']['name'])) {
-                $img = time() . '_' . $_FILES['img']['name'];
-                if (move_uploaded_file($_FILES['img']['tmp_name'], BOOK_IMAGE_SERVER_PATH . $img)) {
-                    // Xóa ảnh cũ nếu tồn tại
-                    if (!empty($currentImg) && file_exists(BOOK_IMAGE_SERVER_PATH . $currentImg)) {
-                        unlink(BOOK_IMAGE_SERVER_PATH . $currentImg);
-                    }
-                    $sql = "UPDATE books SET category_id=$category_id, ISBN='$ISBN', name='$name', author='$author',
-                            security=$security, rent=$rent, qty=$qty, short_desc='$short_desc',
-                            description='$description', img='$img' WHERE id=$id";
+            if ($newImageUploaded) {
+                [$newImageValue, $uploadError] = bookrentail_store_book_image($con, $_FILES['img'], $currentImg);
+                if ($uploadError) {
+                    $error = $uploadError;
                 } else {
-                    $error = "Failed to upload image. Please try again.";
+                    $img = $newImageValue;
                 }
             } else {
-                // Không upload ảnh mới, giữ nguyên ảnh cũ (không cập nhật field img)
-                $sql = "UPDATE books SET category_id=$category_id, ISBN='$ISBN', name='$name', author='$author',
-                        security=$security, rent=$rent, qty=$qty, short_desc='$short_desc',
-                        description='$description' WHERE id=$id";
-                // Giữ lại ảnh cũ để hiển thị trong form
                 $img = $currentImg;
             }
+
+            if (empty($error)) {
+                $imgClause = '';
+                if ($newImageUploaded && !empty($img)) {
+                    $imgClause = ", img='" . pg_escape_string($con, $img) . "'";
+                }
+
+                $sql = "UPDATE books SET category_id=$category_id, ISBN='$ISBN', name='$name', author='$author',
+                        security=$security, rent=$rent, qty=$qty, short_desc='$short_desc',
+                        description='$description' $imgClause WHERE id=$id";
+            }
         } else {
-            // Insert new book - bắt buộc phải có ảnh
-            if (!empty($_FILES['img']['name'])) {
-                $img = time() . '_' . $_FILES['img']['name'];
-                if (move_uploaded_file($_FILES['img']['tmp_name'], BOOK_IMAGE_SERVER_PATH . $img)) {
-                    $sql = "INSERT INTO books(category_id, ISBN, name, author, vnd, security, rent, qty, short_desc, description, status, img)
-                            VALUES ($category_id, '$ISBN', '$name', '$author', $security, $security, $rent, $qty, '$short_desc', '$description', 1, '$img')";
+            if ($newImageUploaded) {
+                [$newImageValue, $uploadError] = bookrentail_store_book_image($con, $_FILES['img']);
+                if ($uploadError) {
+                    $error = $uploadError;
                 } else {
-                    $error = "Failed to upload image. Please try again.";
+                    $img = $newImageValue;
+                    $imgEscaped = pg_escape_string($con, $img);
+                    $sql = "INSERT INTO books(category_id, ISBN, name, author, vnd, security, rent, qty, short_desc, description, status, img)
+                            VALUES ($category_id, '$ISBN', '$name', '$author', $security, $security, $rent, $qty, '$short_desc', '$description', 1, '$imgEscaped')";
                 }
             } else {
                 $msg = "Please upload book image";
             }
         }
-        
-        // Thực hiện query và redirect (nếu không có lỗi)
-                if (empty($msg)) {
-                    if (pg_query($con, $sql)) {
-                        header('Location: books.php');
-                        exit;
-                    } else {
-                        $error = "Error: " . pg_last_error($con);
-                    }
-                }
+
+        if (empty($msg) && empty($error) && !empty($sql)) {
+            if (pg_query($con, $sql)) {
+                header('Location: books.php');
+                exit;
+            } else {
+                $error = "Error: " . pg_last_error($con);
+            }
+        }
     }
     
     // Nếu có lỗi và đang edit, giữ lại ảnh cũ để hiển thị trong form

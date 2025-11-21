@@ -20,7 +20,7 @@ document.title = "Book Categories | Book Rental";
       ?>
         <div class="col-6 col-sm-4 col-md-3 col-lg-2">
             <div class="card border-dark  shadow-sm product">
-                <img id="card-img" alt="Book Image" src="<?php echo BOOK_IMAGE_SITE_PATH . $list['img'] ?>"
+                <img id="card-img" alt="Book Image" src="<?php echo bookrentail_get_book_image_url($list['img']) ?>"
                     class="card-img-top rounded" height="250rem" />
                 <div class="overlay">
                     <a href="book.php?id=<?php echo $list['id'] ?>" class="btn-lg text-decoration-none rent-btn">

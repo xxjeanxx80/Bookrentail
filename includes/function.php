@@ -20,6 +20,185 @@ function prx($arr)
   die();
 }
 
+if (!function_exists('str_starts_with')) {
+  function str_starts_with($haystack, $needle)
+  {
+    $needle = (string)$needle;
+    if ($needle === '') {
+      return true;
+    }
+    return strncmp($haystack, $needle, strlen($needle)) === 0;
+  }
+}
+
+if (!function_exists('str_contains')) {
+  function str_contains($haystack, $needle)
+  {
+    return $needle === '' || strpos($haystack, $needle) !== false;
+  }
+}
+
+/**
+ * Kiểm tra thư mục assets/img/books có ghi được không
+ */
+function bookrentail_can_write_local_images(): bool
+{
+  static $isWritable = null;
+
+  if ($isWritable === null) {
+    $targetDir = BOOK_IMAGE_SERVER_PATH;
+    if (!is_dir($targetDir)) {
+      @mkdir($targetDir, 0775, true);
+    }
+    $isWritable = is_dir($targetDir) && is_writable($targetDir);
+  }
+
+  return $isWritable;
+}
+
+/**
+ * Xác định chuỗi img có phải reference tới bảng book_media hay không (media:{id})
+ */
+function bookrentail_is_media_reference(?string $value): bool
+{
+  if (empty($value)) {
+    return false;
+  }
+
+  return str_starts_with($value, 'media:');
+}
+
+/**
+ * Lấy URL hiển thị ảnh sách (hỗ trợ local file, URL tuyệt đối hoặc media:id)
+ */
+function bookrentail_get_book_image_url(?string $value): string
+{
+  $fallback = SITE_PATH . 'assets/img/icon.png';
+
+  if (empty($value)) {
+    return $fallback;
+  }
+
+  if (filter_var($value, FILTER_VALIDATE_URL)) {
+    return $value;
+  }
+
+  if (bookrentail_is_media_reference($value)) {
+    $id = (int)substr($value, 6);
+    if ($id > 0) {
+      return SITE_PATH . 'media.php?id=' . $id;
+    }
+    return $fallback;
+  }
+
+  return BOOK_IMAGE_SITE_PATH . ltrim($value, '/');
+}
+
+/**
+ * Xóa ảnh sách (cả file hệ thống lẫn record media)
+ */
+function bookrentail_delete_book_image($con, ?string $value): void
+{
+  if (empty($value)) {
+    return;
+  }
+
+  if (bookrentail_is_media_reference($value)) {
+    $id = (int)substr($value, 6);
+    if ($id > 0) {
+      bookrentail_ensure_book_media_table($con);
+      pg_query_params($con, 'DELETE FROM book_media WHERE id = $1', [$id]);
+    }
+    return;
+  }
+
+  if (bookrentail_can_write_local_images()) {
+    $path = BOOK_IMAGE_SERVER_PATH . ltrim($value, '/');
+    if (is_file($path)) {
+      @unlink($path);
+    }
+  }
+}
+
+function bookrentail_ensure_book_media_table($con): void
+{
+  static $initialized = false;
+
+  if ($initialized) {
+    return;
+  }
+
+  $ddl = <<<SQL
+CREATE TABLE IF NOT EXISTS book_media (
+    id SERIAL PRIMARY KEY,
+    file_name VARCHAR(255) NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    data BYTEA NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+)
+SQL;
+
+  @pg_query($con, $ddl);
+  @pg_query($con, 'CREATE INDEX IF NOT EXISTS idx_book_media_created_at ON book_media (created_at)');
+
+  $initialized = true;
+}
+
+/**
+ * Lưu ảnh upload. Ưu tiên lưu file local nếu ghi được, ngược lại lưu vào bảng book_media
+ *
+ * @return array{0:?string,1:?string} [đường dẫn/ID ảnh, thông báo lỗi]
+ */
+function bookrentail_store_book_image($con, array $file, ?string $existingValue = null): array
+{
+  if (empty($file['name'])) {
+    return [$existingValue, null];
+  }
+
+  $errorCode = $file['error'] ?? UPLOAD_ERR_OK;
+  if ($errorCode !== UPLOAD_ERR_OK) {
+    return [null, 'Upload failed. Please try again.'];
+  }
+
+  $originalName = basename($file['name']);
+  $safeName = preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $originalName);
+  $generatedName = time() . '_' . $safeName;
+
+  if (bookrentail_can_write_local_images()) {
+    $targetPath = BOOK_IMAGE_SERVER_PATH . $generatedName;
+    if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+      if ($existingValue && $existingValue !== $generatedName) {
+        bookrentail_delete_book_image($con, $existingValue);
+      }
+      return [$generatedName, null];
+    }
+  }
+
+  $content = @file_get_contents($file['tmp_name']);
+  if ($content === false) {
+    return [null, 'Could not read uploaded file.'];
+  }
+
+  bookrentail_ensure_book_media_table($con);
+
+  $mimeType = $file['type'] ?? (function_exists('mime_content_type') ? mime_content_type($file['tmp_name']) : 'application/octet-stream');
+  $insert = pg_query_params(
+    $con,
+    'INSERT INTO book_media (file_name, mime_type, data) VALUES ($1, $2, $3) RETURNING id',
+    [$safeName, $mimeType, $content]
+  );
+
+  if ($insert && ($row = pg_fetch_assoc($insert))) {
+    $newValue = 'media:' . $row['id'];
+    if ($existingValue && $existingValue !== $newValue) {
+      bookrentail_delete_book_image($con, $existingValue);
+    }
+    return [$newValue, null];
+  }
+
+  return [null, 'Failed to store uploaded image.'];
+}
+
 
 /**
  * Lấy danh sách sách từ database

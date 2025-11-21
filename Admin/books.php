@@ -27,6 +27,10 @@ if (isset($_GET['type']) && $_GET['type'] != ' ') {
         $bestSeller = ($_GET['operation'] == 'active') ? 1 : 0;
         pg_query($con, "UPDATE books SET best_seller=$bestSeller WHERE id=$id");
     } elseif ($type == 'delete') {
+        $imgRes = pg_query($con, "SELECT img FROM books WHERE id=$id");
+        if ($imgRes && ($imgRow = pg_fetch_assoc($imgRes))) {
+            bookrentail_delete_book_image($con, $imgRow['img']);
+        }
         pg_query($con, "DELETE FROM books WHERE id=$id");
     }
     
@@ -77,7 +81,8 @@ require(__DIR__ . '/topNav.php');
                     <td><?php echo htmlspecialchars($row['ISBN']) ?></td>
                     <td><?php echo htmlspecialchars($row['category'] ?? 'N/A') ?></td>
                     <td>
-                        <img src="<?php echo BOOK_IMAGE_SITE_PATH . $row['img'] ?>" 
+                        <?php $coverUrl = bookrentail_get_book_image_url($row['img']); ?>
+                        <img src="<?php echo $coverUrl ?>"
                              class="card-img" height="60px" width="80px" alt="Book cover">
                     </td>
                     <td><?php echo htmlspecialchars($row['name']) ?></td>

@@ -1,36 +1,98 @@
 <?php
 /**
- * File cấu hình kết nối database và đường dẫn
+ * File cấu hình kết nối database, đường dẫn và session cho môi trường Vercel
  */
 
-// Kiểm tra session đã start chưa
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+declare(strict_types=1);
+
+/**
+ * Chuẩn hóa đường dẫn (forward slash) để dùng cho so sánh sau này
+ */
+function bookrentail_normalize_path(string $path): string
+{
+    return rtrim(str_replace('\\', '/', $path), '/') . '/';
 }
 
-// Đọc thông số DB từ biến môi trường (ưu tiên DB_* trên Vercel)
-$dbHost = getenv('DB_HOST') ?: '127.0.0.1';
-$dbUser = getenv('DB_USER') ?: 'root';
-$dbPass = getenv('DB_PASS') ?: (getenv('DB_PASSWORD') ?: '');
-$dbName = getenv('DB_NAME') ?: 'bookrentail';
-$dbPort = getenv('DB_PORT') ?: 5432;
+/**
+ * Parse connection string (postgres://user:pass@host:port/db) thành mảng
+ */
+function bookrentail_parse_pg_url(?string $url): ?array
+{
+    if (empty($url)) {
+        return null;
+    }
 
-// Kết nối cơ sở dữ liệu
-$conn_string = "host=$dbHost port=$dbPort dbname=$dbName user=$dbUser password=$dbPass";
-$databaseConnection = pg_connect($conn_string);
+    $parts = parse_url($url);
+    if ($parts === false || !isset($parts['scheme']) || $parts['scheme'] !== 'postgres') {
+        return null;
+    }
+
+    parse_str($parts['query'] ?? '', $queryItems);
+
+    return [
+        'host' => $parts['host'] ?? '127.0.0.1',
+        'port' => $parts['port'] ?? 5432,
+        'user' => $parts['user'] ?? 'postgres',
+        'pass' => $parts['pass'] ?? '',
+        'name' => isset($parts['path']) ? ltrim($parts['path'], '/') : 'postgres',
+        'sslmode' => $queryItems['sslmode'] ?? null,
+    ];
+}
+
+// Ưu tiên biến môi trường dạng URL (Vercel Postgres/Neon/Supabase)
+$urlConfig = bookrentail_parse_pg_url(
+    getenv('VERCEL_POSTGRES_URL')
+    ?: getenv('DATABASE_URL')
+    ?: getenv('POSTGRES_URL')
+);
+
+$dbHost = $urlConfig['host'] ?? (getenv('DB_HOST') ?: '127.0.0.1');
+$dbUser = $urlConfig['user'] ?? (getenv('DB_USER') ?: 'root');
+$dbPass = $urlConfig['pass'] ?? (getenv('DB_PASS') ?: (getenv('DB_PASSWORD') ?: ''));
+$dbName = $urlConfig['name'] ?? (getenv('DB_NAME') ?: 'bookrentail');
+$dbPort = (int)($urlConfig['port'] ?? (getenv('DB_PORT') ?: 5432));
+$dbSslMode = $urlConfig['sslmode'] ?? getenv('DB_SSLMODE');
+
+// Với môi trường Vercel/Neon cần sslmode=require (trừ khi override)
+if (!$dbSslMode) {
+    $isLocal = in_array($dbHost, ['127.0.0.1', 'localhost'], true);
+    $dbSslMode = $isLocal ? 'disable' : 'require';
+}
+
+$connParts = [
+    "host=$dbHost",
+    "port=$dbPort",
+    "dbname=$dbName",
+    "user=$dbUser",
+    "password=$dbPass",
+    "sslmode=$dbSslMode",
+];
+
+$databaseConnection = @pg_connect(implode(' ', $connParts));
 if (!$databaseConnection) {
-    die('Connection failed: ' . pg_last_error());
+    $error = function_exists('pg_last_error') ? pg_last_error() : 'Unknown error';
+    throw new RuntimeException('Connection failed: ' . $error);
 }
 
 // Tạo alias $con để tương thích với code cũ (sẽ refactor dần)
 $con = $databaseConnection;
 
+$shouldStartSession = !defined('BOOKRENTAIL_SKIP_SESSION') || BOOKRENTAIL_SKIP_SESSION !== true;
+
+// Thiết lập session handler dùng Postgres để tương thích serverless
+if ($shouldStartSession && session_status() === PHP_SESSION_NONE) {
+    require_once __DIR__ . '/sessionHandler.php';
+    $sessionHandler = new PgsqlSessionHandler($con);
+    session_set_save_handler($sessionHandler, true);
+    session_start();
+}
+
 // Xác định đường dẫn vật lý gốc của project
-$projectRoot = str_replace('\\', '/', realpath(__DIR__ . '/..')) . '/';
+$projectRoot = bookrentail_normalize_path(realpath(__DIR__ . '/..') ?: __DIR__ . '/..');
 if (!defined('SERVER_PATH')) {
     // Có thể override bằng biến môi trường nếu deploy trong thư mục khác
     $serverPath = getenv('SERVER_PATH') ?: $projectRoot;
-    define('SERVER_PATH', rtrim($serverPath, '/') . '/');
+    define('SERVER_PATH', bookrentail_normalize_path($serverPath));
 }
 
 // Đường dẫn truy cập website (site path)
@@ -56,7 +118,7 @@ if (!defined('SITE_PATH')) {
     define('SITE_PATH', rtrim($sitePath, '/') . '/');
 }
 
-// Đường dẫn thư mục chứa ảnh sách
+// Đường dẫn thư mục chứa ảnh sách (đọc-only trên Vercel, upload xử lý ngoài)
 if (!defined('BOOK_IMAGE_SERVER_PATH')) {
     define('BOOK_IMAGE_SERVER_PATH', SERVER_PATH . 'assets/img/books/');
 }
