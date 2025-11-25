@@ -1,20 +1,5 @@
 <?php
-// Xử lý logic TRƯỚC KHI require topNav (để tránh lỗi headers already sent)
-require_once(__DIR__ . '/../config/connection.php');
-require_once(__DIR__ . '/../includes/function.php');
-
-// Kiểm tra Remember Me token nếu chưa có session
-if (!isset($_SESSION['ADMIN_LOGIN'])) {
-    checkAdminRememberToken($con);
-}
-
-// Kiểm tra đăng nhập
-if (!isset($_SESSION['ADMIN_LOGIN']) || $_SESSION['ADMIN_LOGIN'] != 'yes') {
-    header('Location: login.php');
-    exit;
-}
-
-// Khởi tạo biến
+require('topNav.php');
 $category_id = '';
 $ISBN = '';
 $name = '';
@@ -27,143 +12,101 @@ $description = '';
 $short_desc = '';
 $error = '';
 $msg = '';
-$uploadError = '';
 
-// Lấy ID từ GET (nếu đang edit)
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-// Biến để lưu ảnh cũ khi edit (cần lấy trước để dùng khi có lỗi hoặc không upload ảnh mới)
-$currentImg = '';
-if ($id > 0) {
-    $oldImgSql = pg_query($con, "SELECT img FROM books WHERE id=$id");
-    if ($oldImgRow = pg_fetch_assoc($oldImgSql)) {
-        $currentImg = $oldImgRow['img'];
-    } else {
-        // Book không tồn tại, redirect về books.php
-        header('Location: books.php');
-        exit;
-    }
+if (isset($_GET['id']) && $_GET['id'] != '') {
+  $id = getSafeValue($con, $_GET['id']);
+  $sql = pg_query($con, "select * from books where id='$id'");
+  $check = pg_num_rows($sql);
+  if ($check > 0) {
+    $row = pg_fetch_assoc($sql);
+    $category_id = $row['category_id'];
+    $ISBN = $row['ISBN'];
+    $name = $row['name'];
+    //      $img = $row['img'];
+    $author = $row['author'];
+    $security = $row['security'];
+    $rent = $row['rent'];
+    $qty = $row['qty'];
+    $short_desc = $row['short_desc'];
+    $description = $row['description'];
+  } else {
+    echo "<script>window.location.href='books.php';</script>";
+    exit;
+  }
 }
 
-// Lấy thông tin book nếu đang edit (chỉ khi không có POST submit - tránh mất dữ liệu khi có lỗi)
-if ($id > 0 && !isset($_POST['submit'])) {
-    $sql = pg_query($con, "SELECT * FROM books WHERE id=$id");
-    if ($row = pg_fetch_assoc($sql)) {
-        $category_id = $row['category_id'];
-        $ISBN = $row['ISBN'];
-        $name = $row['name'];
-        $author = $row['author'];
-        $security = $row['security'];
-        $rent = $row['rent'];
-        $qty = $row['qty'];
-        $short_desc = $row['short_desc'];
-        $description = $row['description'];
-        $img = $row['img']; // Lưu ảnh cũ để hiển thị trong form
-    }
-}
-
-// Xử lý submit form
 if (isset($_POST['submit'])) {
-    $category_id = (int)$_POST['category_id'];
-    $ISBN = trim($_POST['ISBN']);
-    $name = trim($_POST['name']);
-    $author = trim($_POST['author']);
-    $security = (int)$_POST['security'];
-    $rent = (int)$_POST['rent'];
-    $qty = (int)$_POST['qty'];
-    $short_desc = trim($_POST['short_desc']);
-    $description = trim($_POST['description']);
-    $newImageUploaded = !empty($_FILES['img']['name']);
-
-    // Validation
-    if (empty($category_id)) {
-        $msg = "Please select a category";
-    } elseif (empty($ISBN)) {
-        $msg = "Please enter book ISBN";
-    } elseif (empty($name)) {
-        $msg = "Please enter book name";
-    } elseif (empty($author)) {
-        $msg = "Please enter book author";
-    } elseif ($security <= 0) {
-        $msg = "Security charges must be greater than 0";
-    } elseif ($rent <= 0) {
-        $msg = "Rent cost must be greater than 0";
-    } elseif ($qty <= 0) {
-        $msg = "Quantity must be greater than 0";
-    } elseif (empty($short_desc)) {
-        $msg = "Please enter short description";
-    } elseif (empty($description)) {
-        $msg = "Please enter description";
+  $category_id = getSafeValue($con, $_POST['category_id']);
+  $ISBN = getSafeValue($con, $_POST['ISBN']);
+  $name = getSafeValue($con, $_POST['name']);
+  $author = getSafeValue($con, $_POST['author']);
+  $security = getSafeValue($con, $_POST['security']);
+  $rent = getSafeValue($con, $_POST['rent']);
+  $qty = getSafeValue($con, $_POST['qty']);
+  $short_desc = getSafeValue($con, $_POST['short_desc']);
+  $description = getSafeValue($con, $_POST['description']);
+  
+  // Get the ID for edit mode
+  $id = '';
+  if (isset($_GET['id']) && $_GET['id'] != '') {
+    $id = getSafeValue($con, $_GET['id']);
+  }
+  
+  $sql = pg_query($con, "select * from books where name='$name'");
+  $check = pg_num_rows($sql);
+  if ($check > 0) {
+    if (isset($_GET['id']) && $_GET['id'] != '') {
+      $getData = pg_fetch_assoc($sql);
+      if ($id == $getData['id']) {
+      } else {
+        $msg = "Book already exist";
+      }
     } else {
-        // Check if book name already exists (except current book)
-        $nameEscaped = pg_escape_string($con, $name);
-        $checkSql = pg_query($con, "SELECT id FROM books WHERE name='$nameEscaped'");
-        if (pg_num_rows($checkSql) > 0) {
-            $existing = pg_fetch_assoc($checkSql);
-            if (!$id || $existing['id'] != $id) {
-                $msg = "Book already exists";
-            }
-        }
+      $msg = "Book already exist";
     }
-    
-    if (empty($msg)) {
-        $sql = '';
-        if ($id > 0) {
-            if ($newImageUploaded) {
-                [$newImageValue, $uploadError] = bookrentail_store_book_image($con, $_FILES['img'], $currentImg);
-                if ($uploadError) {
-                    $error = $uploadError;
-                } else {
-                    $img = $newImageValue;
-                }
-            } else {
-                $img = $currentImg;
-            }
+  }
 
-            if (empty($error)) {
-                $imgClause = '';
-                if ($newImageUploaded && !empty($img)) {
-                    $imgClause = ", img='" . pg_escape_string($con, $img) . "'";
-                }
-
-                $sql = "UPDATE books SET category_id=$category_id, ISBN='$ISBN', name='$name', author='$author',
-                        security=$security, rent=$rent, qty=$qty, short_desc='$short_desc',
-                        description='$description' $imgClause WHERE id=$id";
-            }
+  if ($msg == '') {
+    if (isset($_GET['id']) && $_GET['id'] != '') {
+      // Handle image update if new image is uploaded
+      if (isset($_FILES['img']) && $_FILES['img']['error'] == 0 && $_FILES['img']['size'] > 0) {
+        $img = rand(1111111111, 2147483647) . '_' . $_FILES['img']['name'];
+        move_uploaded_file($_FILES['img']['tmp_name'], BOOK_IMAGE_SERVER_PATH . $img);
+        $sql = "update books set category_id='$category_id', ISBN='$ISBN', name='$name', author='$author',
+                   security='$security', rent='$rent', qty='$qty', short_desc='$short_desc', description='$description', img='$img'
+                   where id='$id'";
+      } else {
+        // Keep existing image if no new image uploaded
+        $sql = "update books set category_id='$category_id', ISBN='$ISBN', name='$name', author='$author',
+                   security='$security', rent='$rent', qty='$qty', short_desc='$short_desc', description='$description'
+                   where id='$id'";
+      }
+    } else {
+      // Adding new book - image is required
+      if (isset($_FILES['img']) && $_FILES['img']['error'] == 0 && $_FILES['img']['size'] > 0) {
+        $img = rand(1111111111, 2147483647) . '_' . $_FILES['img']['name'];
+        move_uploaded_file($_FILES['img']['tmp_name'], BOOK_IMAGE_SERVER_PATH . $img);
+        $sql = "insert into books(category_id, ISBN, name, author, security, rent, qty, short_desc, description,
+                                      status, img)
+                  values('$category_id', '$ISBN', '$name', '$author', '$security', '$rent', '$qty', '$short_desc',
+                         '$description', '1', '$img')";
+      } else {
+        $error = "Please upload a book image";
+        $msg = "Image is required for new books";
+      }
+    }
+    if (empty($error)) {
+      if (!empty($sql)) {
+        if (pg_query($con, $sql)) {
+          echo "<script>window.location.href='books.php';</script>";
+          exit;
         } else {
-            if ($newImageUploaded) {
-                [$newImageValue, $uploadError] = bookrentail_store_book_image($con, $_FILES['img']);
-                if ($uploadError) {
-                    $error = $uploadError;
-                } else {
-                    $img = $newImageValue;
-                    $imgEscaped = pg_escape_string($con, $img);
-                    $sql = "INSERT INTO books(category_id, ISBN, name, author, vnd, security, rent, qty, short_desc, description, status, img)
-                            VALUES ($category_id, '$ISBN', '$name', '$author', $security, $security, $rent, $qty, '$short_desc', '$description', 1, '$imgEscaped')";
-                }
-            } else {
-                $msg = "Please upload book image";
-            }
+          $error = "Database Error: " . pg_last_error($con);
         }
-
-        if (empty($msg) && empty($error) && !empty($sql)) {
-            if (pg_query($con, $sql)) {
-                header('Location: books.php');
-                exit;
-            } else {
-                $error = "Error: " . pg_last_error($con);
-            }
-        }
+      }
     }
-    
-    // Nếu có lỗi và đang edit, giữ lại ảnh cũ để hiển thị trong form
-    if (!empty($msg) && $id > 0 && empty($img) && !empty($currentImg)) {
-        $img = $currentImg;
-    }
+  }
 }
-
-// Sau khi xử lý xong tất cả logic, mới require topNav để hiển thị HTML
-require(__DIR__ . '/topNav.php');
 ?>
 <main>
     <div class="container pt-4">
@@ -237,8 +180,11 @@ require(__DIR__ . '/topNav.php');
         </div>
         <!-- img -->
         <div class="form-outline mb-4 mx-5">
-            <label class="form-label ms-2 p-1" for="Book name">Enter book image</label>
-            <input type="file" name="img" id="Book name" class="form-control" />
+            <label class="form-label ms-2 p-1" for="Book name">Enter book image<?php if (!isset($_GET['id']) || $_GET['id'] == '') echo ' (Required)'; else echo ' (Optional - leave empty to keep current image)'; ?></label>
+            <input type="file" name="img" id="Book name" class="form-control" accept="image/*" <?php if (!isset($_GET['id']) || $_GET['id'] == '') echo 'required'; ?> />
+            <?php if (isset($_GET['id']) && $_GET['id'] != '' && !empty($row['img'])) { ?>
+                <small class="text-muted">Current image: <?php echo $row['img'] ?></small>
+            <?php } ?>
         </div>
 
         <!-- short_desc -->

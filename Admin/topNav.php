@@ -1,14 +1,8 @@
 <?php
-require_once(__DIR__ . '/../config/connection.php');
-require_once(__DIR__ . '/../includes/function.php');
-
-// Kiểm tra Remember Me token nếu chưa có session
-if (!isset($_SESSION['ADMIN_LOGIN'])) {
-    checkAdminRememberToken($con);
-}
-
-// Kiểm tra đăng nhập
-if (!isset($_SESSION['ADMIN_LOGIN']) || $_SESSION['ADMIN_LOGIN'] != 'yes') {
+require('connection.php');
+require('function.php');
+if (isset($_SESSION['ADMIN_LOGIN']) && $_SESSION['ADMIN_LOGIN'] != ' ') {
+} else {
     header('location:login.php');
     die();
 }
@@ -22,62 +16,16 @@ if (!isset($_SESSION['ADMIN_LOGIN']) || $_SESSION['ADMIN_LOGIN'] != 'yes') {
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Admin Panel</title>
     <!-- Icon -->
-    <link rel="shortcut icon" href="../assets/img/icon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="../Img/icon.png" type="image/x-icon" />
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" />
     <!-- Google Fonts Roboto -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
     <!-- MDB -->
     <link rel="stylesheet" href="css/mdb.min.css" />
-    <!-- Custom styles -->
+    <!-- Custom Admin Styles -->
     <link rel="stylesheet" href="css/admin.css" />
-    <style>
-        .admin-logo {
-            transition: transform 0.3s ease;
-            padding: 5px;
-        }
-        .admin-logo:hover {
-            transform: scale(1.05);
-        }
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        }
-        .navbar-brand {
-            margin-right: 20px;
-        }
-        .nav-link {
-            color: rgba(255,255,255,0.9) !important;
-            font-weight: 500;
-            padding: 8px 15px !important;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-        .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: #fff !important;
-            transform: translateY(-2px);
-        }
-        .navbar-toggler {
-            border: none;
-            color: #fff;
-        }
-        .navbar-toggler:focus {
-            box-shadow: none;
-        }
-        .btn-group .btn-light {
-            background-color: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #fff;
-        }
-        .btn-group .btn-light:hover {
-            background-color: rgba(255,255,255,0.3);
-        }
-        .dropdown-menu {
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-    </style>
+    <!-- Custom styles -->
 </head>
 
 <body>
@@ -89,35 +37,56 @@ if (!isset($_SESSION['ADMIN_LOGIN']) || $_SESSION['ADMIN_LOGIN'] != 'yes') {
                 <i class="fas fa-bars"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <a class="navbar-brand" href="../pages/index.php">
-                    <img src="../assets/img/logovnu.png" height="40" alt="Book Rental Logo" class="admin-logo" />
-                </a>
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="categories.php">Categories</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="books.php">Books list</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="orders.php">Orders</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="users.php">Users</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="d-flex align-items-center nav-item">
-                <?php
-                $userName = $_SESSION['ADMIN_email'];
-                echo '<div class="btn-group shadow-0">
-                            <button type="button" class="btn btn-light dropdown-toggle" data-mdb-toggle="dropdown" 
-                                    aria-expanded="false">' . $userName . '</button>
-                                    <ul class="dropdown-menu">
-                                           <li><a class="dropdown-item"  href="logout.php">Logout</a></li>
-                                    </ul>
-                        </div>';
-                ?>
+                <!-- Left Spacer -->
+                <div class="navbar-spacer"></div>
+                
+                <!-- Center Content -->
+                <div class="navbar-content">
+                    <!-- Center Logo -->
+                    <div class="logo-center">
+                        <a class="navbar-brand" href="../index.php">
+                            <img src="../Img/logovnu.png" height="30" alt="Logo" />
+                        </a>
+                    </div>
+                    
+                    <!-- Center Navigation Menu -->
+                    <div class="menu-center">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="categories.php">Categories</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="books.php">Books list</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="orders.php">Orders</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="returnDate.php" class="nav-link">Return Date</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="users.php">Users</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="feedback.php">Feedbacks</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Right User Dropdown -->
+                <div class="user-right">
+                    <?php
+                    $userName = $_SESSION['ADMIN_email'];
+                    echo '<div class="btn-group shadow-0">
+                                <button type="button" class="btn btn-light dropdown-toggle" data-mdb-toggle="dropdown" 
+                                        aria-expanded="false">' . $userName . '</button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                                        </ul>
+                            </div>';
+                    ?>
+                </div>
             </div>
         </div>
-    </nav>  
+    </nav>

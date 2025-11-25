@@ -1,38 +1,36 @@
 <?php
-require(__DIR__ . '/../config/connection.php');
-require(__DIR__ . '/../includes/function.php');
-
-// Kiểm tra Remember Me token nếu chưa có session
-if (!isset($_SESSION['ADMIN_LOGIN'])) {
-    checkAdminRememberToken($con);
-}
-
-// Nếu đã đăng nhập, chuyển đến categories.php
-if (isset($_SESSION['ADMIN_LOGIN'])) {
-    header('location:categories.php');
-    die();
-}
-
-$msg = '';
+require('connection.php');
+require('function.php');
+$msg = $passwordTemp = '';
 if (isset($_POST['submit'])) {
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
-    $rememberMe = isset($_POST['remember_me']) ? true : false;
-    
-    // Hash password bằng MD5 (giống user)
-    $passwordHash = md5($password);
-    
-    $sql = "SELECT * FROM admin WHERE email='$email' AND password='$passwordHash'";
+    $email = getSafeValue($con, $_POST['email']);
+    $passwordTemp = getSafeValue($con, $_POST['password']);
+    $password = md5($passwordTemp);
+    $sql = "select * from admin where email='$email' and password='$password'";
     $res = pg_query($con, $sql);
-
-    if ($res && pg_num_rows($res) > 0) {
-        $row = pg_fetch_assoc($res);
+    $row = pg_fetch_assoc($res);
+    $count = pg_num_rows($res);
+    if ($count > 0) {
         $_SESSION['ADMIN_LOGIN'] = 'yes';
+        $_SESSION['ADMIN_ID'] = $row['id'];
         $_SESSION['ADMIN_email'] = $email;
         
-        // Nếu chọn Remember Me, lưu token
-        if ($rememberMe) {
-            saveAdminRememberToken($con, $row['id']);
+        // Set remember me with database tokens
+        if (isset($_POST['remember_me']) && $_POST['remember_me'] == '1') {
+            // Generate secure random token
+            $token = bin2hex(random_bytes(32));
+            $expires_at = date('Y-m-d H:i:s', time() + (86400 * 30)); // 30 days
+            $created_at = date('Y-m-d H:i:s');
+            
+            // Insert token into admin_tokens table
+            $insertTokenSql = "INSERT INTO admin_tokens (admin_id, token, expires_at, created_at) 
+                              VALUES ('{$row['id']}', '$token', '$expires_at', '$created_at')";
+            pg_query($con, $insertTokenSql);
+            
+            // Set cookie with token (more secure than old method)
+            $cookie_name = 'admin_auth';
+            $cookie_value = base64_encode($row['id'] . '|' . $token);
+            setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/");
         }
         
         header('location:categories.php');
@@ -50,11 +48,11 @@ if (isset($_POST['submit'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Icon -->
-    <link rel="shortcut icon" href="../assets/img/icon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="../Img/icon.png" type="image/x-icon" />
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- Default CSS -->
-    <link rel="stylesheet" href="../assets/css/Style.css" />
+    <link rel="stylesheet" href="../css/Style.css" />
     <!-- Bootstrap CSS -->
     <link id="theme" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Font Awesome Fonts-->
@@ -91,22 +89,20 @@ if (isset($_POST['submit'])) {
                                         <label for="Password">Password</label>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="form-check ms-5">
-                                        <input class="form-check-input" type="checkbox" name="remember_me" id="remember_me" value="1">
-                                        <label class="form-check-label" for="remember_me">
-                                            Remember Me
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="mt-2 mb-1 d-flex justify-content-center field_error" style="color: red">
+                                <div class="mt-2 mb-1 d-flex justify-content-center field_error">
                                     <?php echo $msg ?>
                                 </div>
-                                <div class="d-flex justify-content-center mt-3 mb-3 mb-lg-4">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3 mb-lg-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="remember_me" value="1" id="rememberMe">
+                                        <label class="form-check-label" for="rememberMe">
+                                            Remember me for 30 days
+                                        </label>
+                                    </div>
                                     <button type="submit" name="submit" class="btn btn-primary  btn-lg">Login</button>
                                 </div>
                                 <div class="text-center mt-2">
-                                    <a href="../pages/index.php" class="text-decoration-none text-black">Not An Admin?
+                                    <a href="../index.php" class="text-decoration-none text-black">Not An Admin?
                                         <span style="color: blue">Click here</span></a>
                                 </div>
                             </form>

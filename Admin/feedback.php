@@ -2,28 +2,27 @@
 require('topNav.php');
 
 // ============================================================================
-// USERS MANAGEMENT - CLEAN CODE GIẢI THÍCH TẠI SAU
+// FEEDBACK MANAGEMENT - CLEAN CODE GIẢI THÍCH TẠI SAU
 // ============================================================================
 
-// Xử lý user deletion từ URL parameters
-// Giải thích: Admin có thể xóa user khỏi hệ thống
-// NGHIỆP VỤ: Xóa vĩnh viễn user account
+// Xử lý feedback deletion từ URL parameters
+// Giải thích: Admin có thể xóa feedback khỏi hệ thống
+// NGHIỆP VỤ: Xóa vĩnh viễn feedback sau khi xử lý
 if (isset($_GET['type']) && $_GET['type'] != ' ') {
   $type = getSafeValue($con, $_GET['type']);
 
   if ($type == 'delete') {
-    // Xóa user khỏi database
-    // Giải thích: DELETE trực tiếp user record
-    // LƯU Ý: Trong thực tế nên kiểm tra ràng buộc dữ liệu trước khi xóa
+    // Xóa feedback khỏi database
+    // Giải thích: DELETE trực tiếp feedback record
     $id = getSafeValue($con, $_GET['id']);
-    $deleteSql = "delete from users where id='$id'";
+    $deleteSql = "delete from contact_us where id='$id'";
     pg_query($con, $deleteSql);
   }
 }
 
-// Lấy tất cả users từ database
-// Giải thích: SELECT tất cả users sắp xếp theo ID giảm dần (mới nhất trước)
-$sql = "select * from users order by id desc";
+// Lấy tất cả feedback từ database
+// Giải thích: SELECT tất cả feedback sắp xếp theo ID giảm dần (mới nhất trước)
+$sql = "select * from contact_us order by id desc";
 $res = pg_query($con, $sql);
 
 ?>
@@ -31,7 +30,7 @@ $res = pg_query($con, $sql);
 <!--Main layout-->
 <main>
     <div class="container pt-4">
-        <h4 class="fs-2 text-center ">Users</h4>
+        <h4 class="fs-2 text-center ">Feedback</h4>
         <hr>
         <br>
     </div>
@@ -43,21 +42,23 @@ $res = pg_query($con, $sql);
                     <th>Name</th>
                     <th>Email</th>
                     <th>Mobile</th>
-                    <th>Date of Joining</th>
+                    <th>Message</th>
+                    <th>Date</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-        // Hiển thị danh sách users
-        // Giải thích: Loop qua từng user và hiển thị thông tin
+        // Hiển thị danh sách feedback
+        // Giải thích: Loop qua từng feedback và hiển thị thông tin
         while ($row = pg_fetch_assoc($res)) { ?>
                 <tr>
                     <td> <?php echo $row['id'] ?> </td>
                     <td> <?php echo $row['name'] ?> </td>
                     <td> <?php echo $row['email'] ?> </td>
                     <td> <?php echo $row['mobile'] ?> </td>
-                    <td> <?php echo $row['doj'] ?> </td>
+                    <td> <?php echo $row['message'] ?> </td>
+                    <td> <?php echo $row['date'] ?> </td>
                     <td> <?php echo "<a class='link-white btn btn-danger px-2 py-1' href='?type=delete&id=" . $row['id'] .
                     "'>Delete</a>"; ?>
                     </td>
