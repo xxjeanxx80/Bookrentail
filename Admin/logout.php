@@ -1,23 +1,17 @@
 <?php
-require('connection.php');
+require(__DIR__ . '/../config/connection.php');
+require(__DIR__ . '/../includes/function.php');
+
 session_start();
 
-// Delete admin tokens from database when logging out
-if (isset($_SESSION['ADMIN_ID'])) {
-    $admin_id = $_SESSION['ADMIN_ID'];
-    $deleteTokensSql = "DELETE FROM admin_tokens WHERE admin_id = '$admin_id'";
-    pg_query($con, $deleteTokensSql);
+// Xóa token Remember Me nếu có
+if (isset($_COOKIE['admin_remember_token'])) {
+    deleteAdminRememberToken($con, $_COOKIE['admin_remember_token']);
 }
 
-// Clear session
+// Xóa session (thống nhất sử dụng ADMIN_email - chữ thường)
 unset($_SESSION['ADMIN_LOGIN']);
-unset($_SESSION['ADMIN_ID']);
 unset($_SESSION['ADMIN_email']);
 
-// Clear cookie
-setcookie('admin_auth', '', time() - 3600, "/");
-
-// Redirect to login
 header('location:login.php');
 die();
-?>

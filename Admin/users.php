@@ -1,33 +1,39 @@
 <?php
-require('topNav.php');
+// Xử lý logic TRƯỚC KHI require topNav (để tránh lỗi headers already sent)
+require_once(__DIR__ . '/../config/connection.php');
+require_once(__DIR__ . '/../includes/function.php');
 
-// ============================================================================
-// USERS MANAGEMENT - CLEAN CODE GIẢI THÍCH TẠI SAU
-// ============================================================================
-
-// Xử lý user deletion từ URL parameters
-// Giải thích: Admin có thể xóa user khỏi hệ thống
-// NGHIỆP VỤ: Xóa vĩnh viễn user account
-if (isset($_GET['type']) && $_GET['type'] != ' ') {
-  $type = getSafeValue($con, $_GET['type']);
-
-  if ($type == 'delete') {
-    // Xóa user khỏi database
-    // Giải thích: DELETE trực tiếp user record
-    // LƯU Ý: Trong thực tế nên kiểm tra ràng buộc dữ liệu trước khi xóa
-    $id = getSafeValue($con, $_GET['id']);
-    $deleteSql = "delete from users where id='$id'";
-    pg_query($con, $deleteSql);
-  }
+// Kiểm tra Remember Me token nếu chưa có session
+if (!isset($_SESSION['ADMIN_LOGIN'])) {
+    checkAdminRememberToken($con);
 }
 
-// Lấy tất cả users từ database
-// Giải thích: SELECT tất cả users sắp xếp theo ID giảm dần (mới nhất trước)
+// Kiểm tra đăng nhập
+if (!isset($_SESSION['ADMIN_LOGIN']) || $_SESSION['ADMIN_LOGIN'] != 'yes') {
+    header('Location: login.php');
+    exit;
+}
+
+// Xử lý action (delete user)
+if (isset($_GET['type']) && $_GET['type'] != ' ') {
+    $type = trim($_GET['type']);
+    
+    if ($type == 'delete') {
+        $id = (int)$_GET['id'];
+        $deleteSql = "DELETE FROM users WHERE id=$id";
+        mysqli_query($con, $deleteSql);
+        // Redirect để tránh resubmit form
+        header('Location: users.php');
+        exit;
+    }
+}
+
+// Sau khi xử lý xong tất cả logic, mới require topNav để hiển thị HTML
+require('topNav.php');
+
 $sql = "select * from users order by id desc";
-$res = pg_query($con, $sql);
-
+$res = mysqli_query($con, $sql);
 ?>
-
 <!--Main layout-->
 <main>
     <div class="container pt-4">
@@ -49,9 +55,7 @@ $res = pg_query($con, $sql);
             </thead>
             <tbody>
                 <?php
-        // Hiển thị danh sách users
-        // Giải thích: Loop qua từng user và hiển thị thông tin
-        while ($row = pg_fetch_assoc($res)) { ?>
+        while ($row = mysqli_fetch_assoc($res)) { ?>
                 <tr>
                     <td> <?php echo $row['id'] ?> </td>
                     <td> <?php echo $row['name'] ?> </td>
@@ -71,6 +75,6 @@ $res = pg_query($con, $sql);
 <script type="text/javascript" src="js/mdb.min.js"></script>
 <!-- Custom scripts -->
 <script type="text/javascript" src="js/admin.js"></script>
-
 </body>
+
 </html>

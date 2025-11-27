@@ -1,51 +1,68 @@
 <?php
-require('topNav.php');
-$res = '';
+// Xử lý logic TRƯỚC KHI require topNav (để tránh lỗi headers already sent)
+require_once(__DIR__ . '/../config/connection.php');
+require_once(__DIR__ . '/../includes/function.php');
+
+// Kiểm tra Remember Me token nếu chưa có session
+if (!isset($_SESSION['ADMIN_LOGIN'])) {
+    checkAdminRememberToken($con);
+}
+
+// Kiểm tra đăng nhập
+if (!isset($_SESSION['ADMIN_LOGIN']) || $_SESSION['ADMIN_LOGIN'] != 'yes') {
+    header('Location: login.php');
+    exit;
+}
+
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $categories = '';
 $msg = '';
+$res = '';
 
-if (isset($_GET['id']) && $_GET['id'] != '') {
-  $id = getSafeValue($con, $_GET['id']);
-  $sql = pg_query($con, "select * from categories where id='$id'");
-  $check = pg_num_rows($sql);
-  if ($check > 0) {
-    $row = pg_fetch_assoc($sql);
-    $categories = $row['category'];
-  } else {
-    echo "<script>window.location.href='categories.php';</script>";
-    exit;
-  }
+// Lấy thông tin category nếu đang edit (chỉ khi không có POST submit - tránh mất dữ liệu khi có lỗi)
+if ($id > 0 && !isset($_POST['submit'])) {
+    $sql = mysqli_query($con, "SELECT * FROM categories WHERE id=$id");
+    if ($row = mysqli_fetch_assoc($sql)) {
+        $categories = $row['category'];
+    } else {
+        header('Location: categories.php');
+        exit;
+    }
 }
 
+// Xử lý submit form
 if (isset($_POST['submit'])) {
-  $category = getSafeValue($con, $_POST['category']);
-  $sql = pg_query($con, "select * from categories where category='$category'");
-  $check = pg_num_rows($sql);
-  if ($check > 0) {
-    if (isset($_GET['id']) && $_GET['id'] != '') {
-      $getData = pg_fetch_assoc($sql);
-      if ($id == $getData['id']) {
-      } else {
-        $msg = "Category already exist";
-      }
-    } else {
-      $msg = "Category already exist";
+    $category = trim($_POST['category']);
+    $categories = $category; // Giữ giá trị từ POST để hiển thị lại trong form nếu có lỗi
+    
+    // Check duplicate (trừ category hiện tại nếu đang edit)
+    $checkSql = mysqli_query($con, "SELECT id FROM categories WHERE category='$category'");
+    if (mysqli_num_rows($checkSql) > 0) {
+        $existing = mysqli_fetch_assoc($checkSql);
+        if (!$id || $existing['id'] != $id) {
+            $msg = "Category already exists";
+        }
     }
-  }
-  if ($msg == '') {
-    if (isset($_GET['id']) && $_GET['id'] != '') {
-      $sql = "update categories set category='$category' where id='$id' ";
-    } else {
-      $sql = "insert into categories(category, status) values('$category', '1')";
+    
+    // Thực hiện query và redirect (nếu không có lỗi)
+    if (empty($msg)) {
+        if ($id > 0) {
+            $sql = "UPDATE categories SET category='$category' WHERE id=$id";
+        } else {
+            $sql = "INSERT INTO categories(category, status) VALUES('$category', 1)";
+        }
+        
+        if (mysqli_query($con, $sql)) {
+            header('Location: categories.php');
+            exit;
+        } else {
+            $res = "Error: " . mysqli_error($con);
+        }
     }
-    if (pg_query($con, $sql)) {
-      echo "<script>window.location.href='categories.php';</script>";
-      exit;
-    } else {
-      $res = "Error";
-    }
-  }
 }
+
+// Sau khi xử lý xong tất cả logic, mới require topNav để hiển thị HTML
+require('topNav.php');
 
 ?>
 <main>

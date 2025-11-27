@@ -1,0 +1,12 @@
+# Redirect pages/Admin/* to Admin/*
+RewriteEngine On
+RewriteBase /ins3064/Book-rental/
+
+# Redirect pages/Admin to Admin
+RewriteRule ^pages/Admin/(.*)$ Admin/$1 [R=301,L]
+
+# Redirect root to pages/index.php (if not already a file)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^$ pages/index.php [L]
+

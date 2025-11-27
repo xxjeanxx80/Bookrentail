@@ -24,7 +24,6 @@ Hệ thống Book Rental cho phép khách hàng (Customer) thực hiện các ch
 - ✅ Xem lịch sử đơn hàng
 - ✅ Hủy đơn hàng
 - ✅ Cập nhật thông tin profile
-- ✅ Gửi phản hồi/Liên hệ
 
 ---
 
@@ -50,8 +49,7 @@ Book-rental/
     ├── checkout.php            # Thanh toán
     ├── thankYou.php            # Trang cảm ơn sau khi đặt hàng
     ├── myOrder.php             # Lịch sử đơn hàng
-    ├── profile.php             # Cập nhật profile
-    └── contactUs.php           # Liên hệ/Gửi phản hồi
+    └── profile.php             # Cập nhật profile
 ```
 
 ---
@@ -158,7 +156,7 @@ define('BOOK_IMAGE_SITE_PATH', SITE_PATH . 'assets/img/books/');
   ```
 - HTML head (CSS, Bootstrap, Font Awesome)
 - Navigation bar với:
-  - Logo và menu (Home, Book Categories, Contact Us)
+  - Logo và menu (Home, Book Categories)
   - Thanh tìm kiếm
   - Menu user (nếu đã login): My Orders, Edit Profile, Logout
   - Nút Login (nếu chưa login)
@@ -188,10 +186,7 @@ if (isset($_SESSION['USER_LOGIN'])) {
 
 **Các function chính:**
 
-#### `getSafeValue($con, $inputString)`
-- **Mục đích:** Làm sạch và bảo mật dữ liệu đầu vào
-- **Xử lý:** Trim, stripslashes, htmlspecialchars, mysqli_real_escape_string
-- **Dùng cho:** Tất cả dữ liệu từ `$_POST`, `$_GET`
+**Lưu ý:** Để đơn giản hóa cho mục đích demo/giáo dục, code sử dụng `trim()` và `mysqli_real_escape_string()` trực tiếp thay vì hàm wrapper.
 
 #### `getProduct($con, $limitCount, $categoryId, $bookId, $orderByClause)`
 - **Mục đích:** Lấy danh sách sách từ database
@@ -256,6 +251,8 @@ if (isset($_SESSION['USER_LOGIN'])) {
 
 2. **Xử lý form đăng nhập:**
    - Nhận `email` và `password` từ POST
+   - Sử dụng `trim()` để loại bỏ khoảng trắng
+   - Sử dụng `mysqli_real_escape_string()` để escape SQL
    - Hash password bằng MD5
    - Query database: `SELECT * FROM users WHERE email='...' AND password='...'`
 
@@ -404,10 +401,15 @@ if (isset($_SESSION['USER_LOGIN'])) {
    ```php
    if (isset($_POST['submit'])) {
        // Lấy dữ liệu form
-       $address = getSafeValue($con, $_POST['address']);
-       $address2 = getSafeValue($con, $_POST['address2'] ?? '');
+       $address = trim($_POST['address']);
+       $address2 = trim($_POST['address2'] ?? '');
        $pin = (int)$_POST['pin'];
-       $paymentMethod = getSafeValue($con, $_POST['paymentMethod']);
+       $paymentMethod = trim($_POST['paymentMethod']);
+       
+       // Escape cho SQL
+       $address = mysqli_real_escape_string($con, $address);
+       $address2 = mysqli_real_escape_string($con, $address2);
+       $paymentMethod = mysqli_real_escape_string($con, $paymentMethod);
        $userId = (int)$_SESSION['USER_ID'];
        $paymentStatus = ($paymentMethod == 'COD') ? 'success' : 'pending';
        
@@ -607,33 +609,6 @@ die();
 
 ---
 
-### 15. `pages/contactUs.php` - Liên Hệ
-**Mục đích:** Cho phép customer gửi phản hồi
-
-**Flow:**
-1. **Auto-fill nếu đã login:**
-   ```php
-   if (isset($_SESSION['USER_LOGIN'])) {
-       // Lấy name, email, mobile từ database
-   }
-   ```
-
-2. **Xử lý form:**
-   ```php
-   if (isset($_POST['submit'])) {
-       $name = getSafeValue($con, $_POST['name']);
-       $email = getSafeValue($con, $_POST['email']);
-       $mobile = getSafeValue($con, $_POST['mobile']);
-       $message = getSafeValue($con, $_POST['message']);
-       
-       INSERT INTO contact_us(name, email, mobile, message, date)
-   }
-   ```
-
-3. Hiển thị thông báo "Message sent" hoặc "Error"
-
-**Database:** Bảng `contact_us` (INSERT)
-
 ---
 
 ## 🗄️ DATABASE SCHEMA LIÊN QUAN
@@ -654,7 +629,6 @@ Lưu thông tin customer
 - `register.php`: INSERT
 - `SignIn.php`: SELECT
 - `profile.php`: SELECT, UPDATE
-- `contactUs.php`: SELECT (auto-fill)
 
 ---
 
@@ -747,21 +721,6 @@ Lưu các trạng thái đơn hàng
 - `myOrder.php`: SELECT (JOIN để hiển thị tên trạng thái)
 
 ---
-
-### Bảng `contact_us`
-Lưu phản hồi từ customer
-
-| Cột | Kiểu | Mô tả |
-|-----|------|-------|
-| id | int(11) | ID phản hồi (Primary Key, Auto Increment) |
-| name | varchar(70) | Tên người gửi |
-| email | varchar(70) | Email người gửi |
-| mobile | bigint(10) | Số điện thoại |
-| message | text | Nội dung phản hồi |
-| date | datetime | Ngày gửi |
-
-**Sử dụng trong:**
-- `contactUs.php`: INSERT
 
 ---
 
@@ -1121,15 +1080,17 @@ unset($_SESSION['USER_NAME']);
 
 ## 🛠️ CÁC FUNCTION HỖ TRỢ
 
-### `getSafeValue($con, $inputString)`
-**Mục đích:** Bảo mật dữ liệu đầu vào
+**Lưu ý về bảo mật dữ liệu đầu vào:**
 
-**Xử lý:**
-1. Kiểm tra empty → return ''
-2. Trim (loại bỏ khoảng trắng đầu/cuối)
-3. stripslashes (loại bỏ backslash)
-4. htmlspecialchars (chuyển HTML special chars)
-5. mysqli_real_escape_string (escape SQL)
+Để đơn giản hóa cho mục đích demo/giáo dục, code sử dụng:
+- `trim()`: Loại bỏ khoảng trắng đầu/cuối
+- `mysqli_real_escape_string()`: Escape SQL để chống SQL injection
+
+**Ví dụ:**
+```php
+$email = trim($_POST['email']);
+$email = mysqli_real_escape_string($con, $email);
+```
 
 **Dùng cho:** Tất cả dữ liệu từ `$_POST`, `$_GET` trước khi insert/update database
 
@@ -1222,8 +1183,6 @@ AND (name LIKE '%$keyword%' OR author LIKE '%$keyword%')
          │
          ├──→ profile.php (Cập nhật profile - Cần login)
          │
-         ├──→ contactUs.php (Liên hệ)
-         │
          └──→ logout.php (Đăng xuất)
                  │
                  └──→ index.php
@@ -1234,7 +1193,7 @@ AND (name LIKE '%$keyword%' OR author LIKE '%$keyword%')
 ## 🔍 CÁC ĐIỂM QUAN TRỌNG CẦN LƯU Ý
 
 ### 1. Bảo Mật
-- ✅ Sử dụng `getSafeValue()` cho tất cả input
+- ✅ Sử dụng `trim()` và `mysqli_real_escape_string()` cho tất cả input
 - ✅ Type casting cho ID: `(int)$_GET['id']`
 - ✅ Kiểm tra session trước khi truy cập trang cần login
 - ⚠️ **Lưu ý:** Password được hash bằng MD5 (không an toàn, nên dùng password_hash)
@@ -1257,7 +1216,7 @@ AND (name LIKE '%$keyword%' OR author LIKE '%$keyword%')
 - ✅ Sử dụng `mysqli_insert_id()` để lấy ID vừa insert
 
 ### 5. User Experience
-- ✅ Auto-fill form nếu đã login (contactUs, profile)
+- ✅ Auto-fill form nếu đã login (profile)
 - ✅ Redirect sau khi đăng nhập/đăng ký
 - ✅ Hiển thị thông báo lỗi/thành công
 - ✅ Disable nút "Rent" nếu hết hàng

@@ -1,46 +1,41 @@
 <?php
-require('topNav.php');
+// Xử lý action TRƯỚC KHI require topNav (để tránh lỗi headers already sent)
+require_once(__DIR__ . '/../config/connection.php');
+require_once(__DIR__ . '/../includes/function.php');
 
-// ============================================================================
-// CATEGORIES MANAGEMENT - CLEAN CODE GIẢI THÍCH TẠI SAU
-// ============================================================================
-
-// Xử lý category status update từ URL
-// Giải thích: Admin có thể toggle Active/Inactive status cho category
-// NGHIỆP VỤ: Ẩn/hiện category trên frontend mà không cần xóa
-if (isset($_GET['type']) && $_GET['type'] != ' ') {
-  $type = getSafeValue($con, $_GET['type']);
-  
-  if ($type == 'status') {
-    // Toggle status active/deactive
-    // LOGIC: active = 1 (hiển thị), deactive = 0 (ẩn)
-    $operation = getSafeValue($con, $_GET['operation']);
-    $id = getSafeValue($con, $_GET['id']);
-    if ($operation == 'active') {
-      $status = '1';
-    } else {
-      $status = '0';
-    }
-    $updateStatusSql = "update categories set status='$status' where id='$id'";
-    pg_query($con, $updateStatusSql);
-  }
-
-  if ($type == 'delete') {
-    // Xóa category khỏi database
-    // NGHIỆP VỤ: Xóa vĩnh viễn category
-    $id = getSafeValue($con, $_GET['id']);
-    $deleteSql = "delete from categories where id='$id'";
-    pg_query($con, $deleteSql);
-  }
+// Kiểm tra Remember Me token nếu chưa có session
+if (!isset($_SESSION['ADMIN_LOGIN'])) {
+    checkAdminRememberToken($con);
 }
 
-// Lấy tất cả categories từ database
-// Giải thích: SELECT tất cả categories sắp xếp theo tên alphabet
+// Kiểm tra đăng nhập
+if (!isset($_SESSION['ADMIN_LOGIN']) || $_SESSION['ADMIN_LOGIN'] != 'yes') {
+    header('Location: login.php');
+    exit;
+}
+
+// Xử lý action
+if (isset($_GET['type']) && $_GET['type'] != ' ') {
+    $type = trim($_GET['type']);
+    $id = (int)$_GET['id'];
+    
+    if ($type == 'status') {
+        $operation = trim($_GET['operation']);
+        $status = ($operation == 'active') ? 1 : 0;
+        mysqli_query($con, "UPDATE categories SET status=$status WHERE id=$id");
+    } elseif ($type == 'delete') {
+        mysqli_query($con, "DELETE FROM categories WHERE id=$id");
+    }
+    
+    header('Location: categories.php');
+    exit;
+}
+
+require('topNav.php');
+
 $sql = "select * from categories order by category asc";
-$res = pg_query($con, $sql);
-
+$res = mysqli_query($con, $sql);
 ?>
-
 <!--Main layout-->
 <main>
     <div class="container pt-4">
@@ -48,8 +43,7 @@ $res = pg_query($con, $sql);
         <hr>
         <br>
     </div>
-    <h5 class="btn btn-white ms-5 px-2 py-1 fs-6 "><a class="link-dark" href="manageCategories.php">Add
-            Categories</a></h5>
+    <h5 class="ms-5 fs-6"><a href="manageCategories.php">Add Categories</a></h5>
     <div class="">
         <table class="table">
             <thead>
@@ -61,38 +55,30 @@ $res = pg_query($con, $sql);
                 </tr>
             </thead>
             <tbody>
-                <?php
-        // Hiển thị danh sách categories
-        // Giải thích: Loop qua từng category và hiển thị với status toggle buttons
-        while ($row = pg_fetch_assoc($res)) { ?>
+                <?php while ($row = mysqli_fetch_assoc($res)): ?>
                 <tr>
-                    <td> <?php echo $row['category'] ?> </td>
+                    <td><?php echo htmlspecialchars($row['category']) ?></td>
                     <td>
-                        <?php
-                        // Hiển thị status button (Active/Inactive)
-                        // LOGIC: Nếu status = 1 -> Active button màu xanh, nếu không -> Inactive button màu vàng
-              if ($row['status'] == 1) {
-                echo "<a class='link-white btn btn-success px-2 py-1' href='?type=status&operation=deactive&id=" . $row['id'] .
-                  "'>Active</a>&nbsp&nbsp";
-              } else {
-                echo "<a class='link-white btn btn-warning px-2 py-1' href='?type=status&operation=active&id=" . $row['id'] .
-                  "'>Inactive</a>&nbsp&nbsp";
-              }
-              ?>
+                        <?php if ($row['status'] == 1): ?>
+                            <a href="?type=status&operation=deactive&id=<?php echo $row['id'] ?>">Active</a>
+                        <?php else: ?>
+                            <a href="?type=status&operation=active&id=<?php echo $row['id'] ?>">Inactive</a>
+                        <?php endif; ?>
                     </td>
-                    <td> <?php echo "<a class='link-white btn btn-primary px-2 py-1' href='manageCategories.php?id=" . $row['id'] .
-                    "'>Edit</a>"; ?>
+                    <td>
+                        <a href="manageCategories.php?id=<?php echo $row['id'] ?>">Edit</a>
                     </td>
-                    <td> <?php echo "<a class='link-white btn btn-danger px-2 py-1' href='?type=delete&id=" . $row['id'] .
-                    "'>Delete</a>"; ?>
+                    <td>
+                        <a href="?type=delete&id=<?php echo $row['id'] ?>" 
+                           onclick="return confirm('Are you sure you want to delete this category?')">Delete</a>
                     </td>
                 </tr>
-                <?php } ?>
+                <?php endwhile; ?>
             </tbody>
         </table>
     </div>
 </main>
 <script type="text/javascript" src="js/admin.js"></script>
-
 </body>
+
 </html>

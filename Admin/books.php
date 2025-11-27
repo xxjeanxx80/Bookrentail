@@ -1,41 +1,48 @@
 <?php
-require('topNav.php');
+// Xử lý các action TRƯỚC KHI require topNav (để tránh lỗi headers already sent)
+// Cần require connection và function trước để có $con và các hàm hỗ trợ
+require_once(__DIR__ . '/../config/connection.php');
+require_once(__DIR__ . '/../includes/function.php');
 
-if (isset($_GET['type']) && $_GET['type'] != ' ') {
-  $type = getSafeValue($con, $_GET['type']);
-  if ($type == 'status') {
-    $operation = getSafeValue($con, $_GET['operation']);
-    $id = getSafeValue($con, $_GET['id']);
-    if ($operation == 'active') {
-      $status = '1';
-    } else {
-      $status = '0';
-    }
-    $updateStatusSql = "update books set status='$status' where id='$id'";
-    pg_query($con, $updateStatusSql);
-  }
-
-  if ($type == 'best_seller') {
-    $operation = getSafeValue($con, $_GET['operation']);
-    $id = getSafeValue($con, $_GET['id']);
-    if ($operation == 'active') {
-      $bestSeller = '1';
-    } else {
-      $bestSeller = '0';
-    }
-    $updateStatusSql = "update books set best_seller='$bestSeller' where id='$id'";
-    pg_query($con, $updateStatusSql);
-  }
-
-  if ($type == 'delete') {
-    $id = getSafeValue($con, $_GET['id']);
-    $deleteSql = "delete from books where id='$id'";
-    pg_query($con, $deleteSql);
-  }
+// Kiểm tra Remember Me token nếu chưa có session
+if (!isset($_SESSION['ADMIN_LOGIN'])) {
+    checkAdminRememberToken($con);
 }
 
-$sql = "select books.id, books.category_id, books.\"ISBN\", books.name, books.img, books.author, books.security, books.rent, books.qty, books.best_seller, books.short_desc, books.description, books.status, books.price, categories.category from books left join categories on books.category_id=categories.id order by books.name asc";
-$res = pg_query($con, $sql);
+// Kiểm tra đăng nhập
+if (!isset($_SESSION['ADMIN_LOGIN']) || $_SESSION['ADMIN_LOGIN'] != 'yes') {
+    header('Location: login.php');
+    exit;
+}
+
+// Xử lý các action
+if (isset($_GET['type']) && $_GET['type'] != ' ') {
+    $type = trim($_GET['type']);
+    $id = (int)$_GET['id'];
+    
+    if ($type == 'status') {
+        $status = ($_GET['operation'] == 'active') ? 1 : 0;
+        mysqli_query($con, "UPDATE books SET status=$status WHERE id=$id");
+    } elseif ($type == 'best_seller') {
+        $bestSeller = ($_GET['operation'] == 'active') ? 1 : 0;
+        mysqli_query($con, "UPDATE books SET best_seller=$bestSeller WHERE id=$id");
+    } elseif ($type == 'delete') {
+        mysqli_query($con, "DELETE FROM books WHERE id=$id");
+    }
+    
+    header('Location: books.php');
+    exit;
+}
+
+// Lấy danh sách sách
+$sql = "SELECT books.*, categories.category 
+        FROM books 
+        LEFT JOIN categories ON books.category_id=categories.id 
+        ORDER BY books.name ASC";
+$res = mysqli_query($con, $sql);
+
+// Bây giờ mới require topNav (đã có connection và function rồi, nên require_once sẽ skip)
+require('topNav.php');
 ?>
 <!--Main layout-->
 <main>
@@ -46,7 +53,7 @@ $res = pg_query($con, $sql);
     </div>
     <h5 class="btn btn-white ms-5 px-2 py-1 fs-6 "><a class="link-dark" href="manageBooks.php">Add Book</a></h5>
     <div class="card-body">
-        <table class="table books-table">
+        <table class="table">
             <thead>
                 <tr>
                     <th>ISBN</th>
@@ -58,51 +65,39 @@ $res = pg_query($con, $sql);
                     <th>Rent</th>
                     <th>Price</th>
                     <th>Qty</th>
-                    <!--                <th></th>-->
-                    <th></th>
-                    <th></th>
-                    <th></th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php
-        while ($row = pg_fetch_assoc($res)) { ?>
+                <?php while ($row = mysqli_fetch_assoc($res)): ?>
                 <tr>
-                    <td> <?php echo $row['ISBN'] ?> </td>
-                    <td> <?php echo $row['category'] ?> </td>
+                    <td><?php echo htmlspecialchars($row['ISBN']) ?></td>
+                    <td><?php echo htmlspecialchars($row['category'] ?? 'N/A') ?></td>
                     <td>
-                        <img src="<?php echo BOOK_IMAGE_SITE_PATH . $row['img'] ?>" class="card-img" height="60px"
-                            width="80px">
+                        <img src="<?php echo BOOK_IMAGE_SITE_PATH . $row['img'] ?>" 
+                             class="card-img" height="60px" width="80px" alt="Book cover">
                     </td>
-                    <td> <?php echo $row['name'] ?> </td>
-                    <td> <?php echo $row['author'] ?> </td>
-                    <td> <?php echo $row['security'] ?> </td>
-                    <td> <?php echo $row['rent'] ?> </td>
-                    <td> <?php echo $row['price'] ?> </td>
-                    <td> <?php echo $row['qty'] ?> </td>
+                    <td><?php echo htmlspecialchars($row['name']) ?></td>
+                    <td><?php echo htmlspecialchars($row['author']) ?></td>
+                    <td>₫<?php echo number_format($row['security']) ?></td>
+                    <td>₫<?php echo number_format($row['rent']) ?>/day</td>
+                    <td>₫<?php echo number_format($row['price']) ?></td>
+                    <td><?php echo $row['qty'] ?></td>
                     <td>
-                        <?php
-              if ($row['best_seller'] == 1) {
-                echo "<a class='link-white btn btn-primary px-2 py-1' href='?type=best_seller&operation=deactive&id=" . $row['id'] .
-                  "'>Most Viewed</a>&nbsp&nbsp";
-              } else {
-                echo "<a class='link-white btn btn-success px-2 py-1' href='?type=best_seller&operation=active&id=" . $row['id'] .
-                  "'>Normal</a>&nbsp&nbsp";
-              }
-              ?>
+                        <?php if ($row['best_seller'] == 1): ?>
+                            <a href="?type=best_seller&operation=deactive&id=<?php echo $row['id'] ?>">Most Viewed</a>
+                        <?php else: ?>
+                            <a href="?type=best_seller&operation=active&id=<?php echo $row['id'] ?>">Normal</a>
+                        <?php endif; ?>
                     </td>
                     <td>
-                        <?php
-              echo "<a class='link-white btn btn-primary px-2 py-1' href='manageBooks.php?id=" . $row['id'] . "'>Edit</a>";
-              ?>
-                    </td>
-                    <td>
-                        <?php
-              echo "<a class='link-white btn btn-danger px-2 py-1' href='?type=delete&id=" . $row['id'] . "'>Delete</a>";
-              ?>
+                        <a href="manageBooks.php?id=<?php echo $row['id'] ?>">Edit</a> | 
+                        <a href="?type=delete&id=<?php echo $row['id'] ?>" 
+                           onclick="return confirm('Are you sure you want to delete this book?')">Delete</a>
                     </td>
                 </tr>
-                <?php } ?>
+                <?php endwhile; ?>
             </tbody>
         </table>
     </div>
