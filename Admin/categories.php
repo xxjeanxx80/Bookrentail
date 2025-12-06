@@ -36,48 +36,48 @@ require('topNav.php');
 $sql = "select * from categories order by category asc";
 $res = mysqli_query($con, $sql);
 ?>
-<!--Main layout-->
-<main>
-    <div class="container pt-4">
-        <h4 class="fs-2 text-center ">Categories</h4>
-        <hr>
-        <br>
+<div class="container mt-5">
+    <div class="d-flex justify-content-center">
+        <h1>Categories
+            <hr>
+        </h1>
     </div>
-    <h5 class="ms-5 fs-6"><a href="manageCategories.php">Add Categories</a></h5>
-    <div class="">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Categories</th>
-                    <th>Status</th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = mysqli_fetch_assoc($res)): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($row['category']) ?></td>
-                    <td>
-                        <?php if ($row['status'] == 1): ?>
-                            <a href="?type=status&operation=deactive&id=<?php echo $row['id'] ?>">Active</a>
-                        <?php else: ?>
-                            <a href="?type=status&operation=active&id=<?php echo $row['id'] ?>">Inactive</a>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <a href="manageCategories.php?id=<?php echo $row['id'] ?>">Edit</a>
-                    </td>
-                    <td>
-                        <a href="?type=delete&id=<?php echo $row['id'] ?>" 
-                           onclick="return confirm('Are you sure you want to delete this category?')">Delete</a>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    </div>
-</main>
+    <h5 class="btn btn-white ms-5 px-2 py-1 fs-6 "><a class="link-dark" href="manageCategories.php">Add Category</a></h5>
+    <table class="table table-responsive">
+        <thead class="">
+            <tr>
+                <th>Category Name</th>
+                <th>Status</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = mysqli_fetch_assoc($res)): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($row['category']) ?></td>
+                <td>
+                    <?php if ($row['status'] == 1): ?>
+                        <span class="badge bg-success">Active</span>
+                    <?php else: ?>
+                        <span class="badge bg-danger">Inactive</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="window.location.href='manageCategories.php?id=<?php echo $row['id'] ?>'">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="if(confirm('Are you sure you want to delete this category?')) window.location.href='?type=delete&id=<?php echo $row['id'] ?>'">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </td>
+            </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+</div>
 <script type="text/javascript" src="js/admin.js"></script>
 </body>
 

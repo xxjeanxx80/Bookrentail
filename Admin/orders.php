@@ -37,71 +37,61 @@ if (isset($_POST['status_id'])) {
 
 require('topNav.php');
 ?>
-<!--Main layout-->
-<main>
-    <div class="container pt-4">
-        <h4 class="fs-2 text-center ">Orders</h4>
-        <hr>
+<div class="container mt-5">
+    <div class="d-flex justify-content-center">
+        <h1>Orders
+            <hr>
+        </h1>
     </div>
-    <div class="card-body">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th> OrderID</th>
-                    <th>Order Date</th>
-                    <th>Book Name</th>
-                    <th>Book Price</th>
-                    <th>Rent Duration</th>
-                    <th>Address</th>
-                    <th>Payment Method</th>
-                    <th>Payment Status</th>
-                    <th>Order Status</th>
-                    <th>Change Order Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-        $res = mysqli_query($con, "SELECT orders.*, name, status_name FROM orders
-                                    JOIN order_detail ON orders.id=order_detail.order_id
-                                    JOIN books ON order_detail.book_id=books.id
-                                    JOIN order_status ON orders.order_status=order_status.id
-                                    ORDER BY date DESC");
-        while ($row = mysqli_fetch_assoc($res)):
-            $canChange = !in_array($row['status_name'], ['Returned', 'Cancelled']);
-        ?>
-                <tr>
-                    <td><?php echo $row['id'] ?></td>
-                    <td><?php echo $row['date'] ?></td>
-                    <td><?php echo $row['name'] ?></td>
-                    <td>₫<?php echo $row['total'] ?></td>
-                    <td><?php echo $row['duration'] ?> days</td>
-                    <td><?php echo $row['address'] ?><?php echo $row['address2'] ? ', ' . $row['address2'] : '' ?></td>
-                    <td><?php echo $row['payment_method'] ?></td>
-                    <td><?php echo $row['payment_status'] ?></td>
-                    <td><?php echo $row['status_name'] ?></td>
-                    <td>
-                        <?php if ($canChange): ?>
-                        <form method="post">
-                            <input type="hidden" name="orderId" value="<?php echo $row['id'] ?>">
-                            <select class="form-select" name="status_id">
-                                <option value="">Select Status</option>
-                                <?php
-                                $statusSql = mysqli_query($con, "SELECT * FROM order_status ORDER BY status_name");
-                                while ($statusRow = mysqli_fetch_assoc($statusSql)):
-                                ?>
-                                <option value="<?php echo $statusRow['id'] ?>"><?php echo $statusRow['status_name'] ?></option>
-                                <?php endwhile; ?>
-                            </select>
-                            <input type="submit" value="Submit" class="btn btn-primary mt-2">
-                        </form>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    </div>
-</main>
+    <table class="table table-responsive">
+        <thead class="">
+            <tr>
+                <th>Order ID</th>
+                <th>Order Date</th>
+                <th>Book Name</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $res = mysqli_query($con, "SELECT orders.*, name, status_name FROM orders
+                                        JOIN order_detail ON orders.id=order_detail.order_id
+                                        JOIN books ON order_detail.book_id=books.id
+                                        JOIN order_status ON orders.order_status=order_status.id
+                                        ORDER BY date DESC");
+            while ($row = mysqli_fetch_assoc($res)):
+            ?>
+            <tr>
+                <td>#<?php echo $row['id'] ?></td>
+                <td><?php echo $row['date'] ?></td>
+                <td><?php echo htmlspecialchars($row['name']) ?></td>
+                <td>₫<?php echo number_format($row['total']) ?></td>
+                <td>
+                    <?php
+                    $statusClass = [
+                        'Pending' => 'secondary',
+                        'Processing' => 'primary',
+                        'Shipped' => 'info',
+                        'Delivered' => 'success',
+                        'Cancelled' => 'danger',
+                        'Returned' => 'warning'
+                    ];
+                    $class = $statusClass[$row['status_name']] ?? 'secondary';
+                    ?>
+                    <span class="badge bg-<?php echo $class ?>"><?php echo htmlspecialchars($row['status_name']) ?></span>
+                </td>
+                <td>
+                    <a class="btn btn-info btn-sm" href="orderDetails.php?id=<?php echo $row['id'] ?>">
+                        View Details
+                    </a>
+                </td>
+            </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+</div>
 <!-- MDB -->
 <script type="text/javascript" src="js/mdb.min.js"></script>
 <!-- Custom scripts -->

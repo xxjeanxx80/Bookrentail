@@ -73,10 +73,10 @@ require('topNav.php');
     </div>
 
     <form method="post">
-        <div class="form-outline mb-4 mx-5">
+        <div class="mb-3">
+            <label for="category" class="form-label">Category Name</label>
             <input type="text" name="category" value="<?php echo $categories ?>" id="category" class="form-control"
                 required />
-            <label class="form-label" for="category">Enter category name</label>
         </div>
         <div class="mb-1 d-flex justify-content-center field_error">
             <?php echo $msg ?>
@@ -90,8 +90,6 @@ require('topNav.php');
         </div>
     </form>
 </main>
-<!-- MDB -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
 <!-- Custom scripts -->
 <script type="text/javascript" src="js/admin.js"></script>
 </body>

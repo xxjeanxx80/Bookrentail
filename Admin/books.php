@@ -44,64 +44,55 @@ $res = mysqli_query($con, $sql);
 // Bây giờ mới require topNav (đã có connection và function rồi, nên require_once sẽ skip)
 require('topNav.php');
 ?>
-<!--Main layout-->
-<main>
-    <div class="container pt-4">
-        <h4 class="fs-2 text-center ">Books</h4>
-        <hr>
-        <br>
+<div class="container mt-5">
+    <div class="d-flex justify-content-center">
+        <h1>Books
+            <hr>
+        </h1>
     </div>
     <h5 class="btn btn-white ms-5 px-2 py-1 fs-6 "><a class="link-dark" href="manageBooks.php">Add Book</a></h5>
-    <div class="card-body">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ISBN</th>
-                    <th>Category</th>
-                    <th>img</th>
-                    <th>Name</th>
-                    <th>Author</th>
-                    <th>Security</th>
-                    <th>Rent</th>
-                    <th>Price</th>
-                    <th>Qty</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = mysqli_fetch_assoc($res)): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($row['ISBN']) ?></td>
-                    <td><?php echo htmlspecialchars($row['category'] ?? 'N/A') ?></td>
-                    <td>
-                        <img src="<?php echo BOOK_IMAGE_SITE_PATH . $row['img'] ?>" 
-                             class="card-img" height="60px" width="80px" alt="Book cover">
-                    </td>
-                    <td><?php echo htmlspecialchars($row['name']) ?></td>
-                    <td><?php echo htmlspecialchars($row['author']) ?></td>
-                    <td>₫<?php echo number_format($row['security']) ?></td>
-                    <td>₫<?php echo number_format($row['rent']) ?>/day</td>
-                    <td>₫<?php echo number_format($row['price']) ?></td>
-                    <td><?php echo $row['qty'] ?></td>
-                    <td>
-                        <?php if ($row['best_seller'] == 1): ?>
-                            <a href="?type=best_seller&operation=deactive&id=<?php echo $row['id'] ?>">Most Viewed</a>
-                        <?php else: ?>
-                            <a href="?type=best_seller&operation=active&id=<?php echo $row['id'] ?>">Normal</a>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <a href="manageBooks.php?id=<?php echo $row['id'] ?>">Edit</a> | 
-                        <a href="?type=delete&id=<?php echo $row['id'] ?>" 
-                           onclick="return confirm('Are you sure you want to delete this book?')">Delete</a>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    </div>
-</main>
+    <table class="table table-responsive">
+        <thead class="">
+            <tr>
+                <th>ISBN</th>
+                <th>Category</th>
+                <th>Image</th>
+                <th>Book Name</th>
+                <th>Author</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = mysqli_fetch_assoc($res)): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($row['ISBN']) ?></td>
+                <td><?php echo htmlspecialchars($row['category'] ?? 'N/A') ?></td>
+                <td>
+                    <img src="<?php echo BOOK_IMAGE_SITE_PATH . $row['img'] ?>" 
+                         height="50px" width="60px" alt="Book cover">
+                </td>
+                <td><?php echo htmlspecialchars($row['name']) ?></td>
+                <td><?php echo htmlspecialchars($row['author']) ?></td>
+                <td>₫<?php echo number_format($row['price']) ?></td>
+                <td>
+                    <?php if ($row['status'] == 1): ?>
+                        <span class="badge bg-success">Active</span>
+                    <?php else: ?>
+                        <span class="badge bg-danger">Inactive</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <button class="btn btn-info btn-sm" onclick="window.location.href='bookDetails.php?id=<?php echo $row['id'] ?>'">
+                        <i class="fas fa-eye"></i> View Details
+                    </button>
+                </td>
+            </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+</div>
 <script type="text/javascript" src="js/admin.js"></script>
 </body>
 

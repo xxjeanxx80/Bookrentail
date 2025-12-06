@@ -27,97 +27,73 @@ if (!isset($_SESSION['ADMIN_LOGIN']) || $_SESSION['ADMIN_LOGIN'] != 'yes') {
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" />
     <!-- Google Fonts Roboto -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
-    <!-- MDB -->
-    <link rel="stylesheet" href="css/mdb.min.css" />
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Custom styles -->
-    <link rel="stylesheet" href="css/admin.css" />
-    <style>
-        .admin-logo {
-            transition: transform 0.3s ease;
-            padding: 5px;
-        }
-        .admin-logo:hover {
-            transform: scale(1.05);
-        }
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        }
-        .navbar-brand {
-            margin-right: 20px;
-        }
-        .nav-link {
-            color: rgba(255,255,255,0.9) !important;
-            font-weight: 500;
-            padding: 8px 15px !important;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-        .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: #fff !important;
-            transform: translateY(-2px);
-        }
-        .navbar-toggler {
-            border: none;
-            color: #fff;
-        }
-        .navbar-toggler:focus {
-            box-shadow: none;
-        }
-        .btn-group .btn-light {
-            background-color: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #fff;
-        }
-        .btn-group .btn-light:hover {
-            background-color: rgba(255,255,255,0.3);
-        }
-        .dropdown-menu {
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-    </style>
+    <link rel="stylesheet" href="css/admin.css?v=<?php echo time(); ?>" />
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg sticky-top navbar-light bg-light">
+    <!-- Navbar - Bootstrap 5 structure like customer header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow">
         <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
-                data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
+            <a class="navbar-brand" href="categories.php">
+                <img src="../assets/img/icon.png" alt="logo" height="40" />
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+                <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <a class="navbar-brand" href="../pages/index.php">
-                    <img src="../assets/img/logovnu.png" height="40" alt="Book Rental Logo" class="admin-logo" />
-                </a>
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <div class="collapse navbar-collapse" id="adminNavbar">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="categories.php">Categories</a>
+                        <a class="nav-link" href="categories.php">
+                            <i class="fas fa-th-large"></i> Categories
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="books.php">Books list</a>
+                        <a class="nav-link" href="books.php">
+                            <i class="fas fa-book"></i> Books list
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="orders.php">Orders</a>
+                        <a class="nav-link" href="orders.php">
+                            <i class="fas fa-shopping-cart"></i> Orders
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="users.php">Users</a>
+                        <a class="nav-link" href="users.php">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="feedbacks.php">
+                            <i class="fas fa-star"></i> Feedbacks
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-2"></i>
+                            <?php 
+                        if (isset($_SESSION['ADMIN_email'])) {
+                            echo htmlspecialchars($_SESSION['ADMIN_email']);
+                        } elseif (isset($_SESSION['ADMIN_NAME'])) {
+                            echo htmlspecialchars($_SESSION['ADMIN_NAME']);
+                        } else {
+                            echo 'Admin';
+                        }
+                        ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                        </ul>
                     </li>
                 </ul>
             </div>
-            <div class="d-flex align-items-center nav-item">
-                <?php
-                $userName = $_SESSION['ADMIN_email'];
-                echo '<div class="btn-group shadow-0">
-                            <button type="button" class="btn btn-light dropdown-toggle" data-mdb-toggle="dropdown" 
-                                    aria-expanded="false">' . $userName . '</button>
-                                    <ul class="dropdown-menu">
-                                            <li><button class="dropdown-item" onclick="window.location=\'logout.php\'">Logout</button></li>
-                                    </ul>
-                        </div>';
-                ?>
-            </div>
         </div>
     </nav>
+    <!-- Navbar -->
+    
+    <!-- Bootstrap 5 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>

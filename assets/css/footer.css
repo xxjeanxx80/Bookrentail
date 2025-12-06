@@ -1,0 +1,15 @@
+/* FOOTER COMPONENT
+-------------------------------------------------------------------------------------------------- */
+
+#footer {
+    background: var(--background-dark);
+    color: var(--text-light);
+    font-size: var(--footer-font-size);
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+}
+
+#footer .copyright {
+    text-align: center;
+}

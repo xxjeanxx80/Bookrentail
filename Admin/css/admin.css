@@ -1,6 +1,9 @@
+/* Body and container styles */
 body {
-    background-color: #f5f7fa;
+    background-color: #f8f9fa;
     font-family: 'Roboto', sans-serif;
+    overflow-x: hidden;
+    padding-top: 50px;
 }
 
 @media (min-width: 991.98px) {
@@ -50,103 +53,206 @@ body {
 
 .admin-logo:hover {
     transform: scale(1.05);
-    background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Navbar Styles */
-.navbar {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+/* Navbar Styles - Override MDB styles */
+.navbar.navbar-light {
+    background-color: rgb(9, 105, 218) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    padding: 0.5rem 0 !important;
 }
 
 .navbar-brand {
-    margin-right: 20px;
+    margin-right: 2rem;
+    padding: 0.5rem 0;
 }
 
 .nav-link {
     color: rgba(255,255,255,0.9) !important;
     font-weight: 500;
-    padding: 8px 15px !important;
-    border-radius: 5px;
+    padding: 0.75rem 1rem !important;
+    border-radius: 6px;
     transition: all 0.3s ease;
-    margin: 0 5px;
+    margin: 0 0.25rem;
 }
 
 .nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: #fff !important;
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
     background-color: rgba(255,255,255,0.15);
     color: #fff !important;
-    transform: translateY(-2px);
 }
 
 .navbar-toggler {
     border: none;
     color: #fff;
+    padding: 0.5rem;
 }
 
 .navbar-toggler:focus {
     box-shadow: none;
 }
 
-/* Buttons */
+.navbar-toggler i {
+    font-size: 1.25rem;
+}
+
+/* User Dropdown */
 .btn-group .btn-light {
-    background-color: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.3);
+    background-color: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
     color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
     transition: all 0.3s ease;
 }
 
 .btn-group .btn-light:hover {
-    background-color: rgba(255,255,255,0.3);
-    transform: translateY(-1px);
+    background-color: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
 }
 
 .dropdown-menu {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    border: none;
-    margin-top: 5px;
+    border: 1px solid rgba(0,0,0,0.1);
+    margin-top: 0.5rem;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: background-color 0.2s ease;
 }
 
 .dropdown-item:hover {
     background-color: #f8f9fa;
 }
 
-/* Table Styles */
+/* Book Details Image Styling */
+.book-detail-image {
+    max-width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Force horizontal navbar layout */
+.navbar-nav {
+    flex-direction: row !important;
+    display: flex !important;
+}
+
+.navbar-nav .nav-item {
+    display: inline-block !important;
+}
+
+.navbar-nav .nav-link {
+    display: inline-block !important;
+}
+
+/* Admin dropdown positioning */
+.navbar .ms-auto {
+    margin-left: auto !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.75rem 0;
+    }
+    
+    .nav-link {
+        margin: 0.25rem 0;
+        padding: 0.75rem 1rem !important;
+    }
+    
+    .navbar-brand {
+        margin-right: 1rem;
+    }
+    
+    .book-detail-image {
+        max-height: 200px;
+    }
+}
+
+/* Table styles for admin pages */
 .table {
-    background-color: #fff;
+    background: white;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
 }
 
 .table thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
+    background-color: rgb(9, 105, 218);
+    color: white;
 }
 
 .table thead th {
     border: none;
-    padding: 15px;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-}
-
-.table tbody tr {
-    transition: all 0.3s ease;
-}
-
-.table tbody tr:hover {
-    background-color: #f8f9fa;
-    transform: scale(1.01);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 12px 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .table tbody td {
     padding: 12px 15px;
     vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Responsive table container */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Admin page headers */
+.container h1 {
+    color: #000000;
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+.container h1 hr {
+    border-top: 2px solid #000000;
+    opacity: 0.3;
+}
+
+.dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.1);
+    margin-top: 0.5rem;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
 
 /* Card Styles */
 .card {
@@ -163,30 +269,101 @@ body {
 
 /* Form Styles */
 .form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    border-color: rgb(9, 105, 218);
+    box-shadow: 0 0 0 0.2rem rgba(9, 105, 218, 0.25);
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color: rgb(9, 105, 218);
     border: none;
     transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
+    background-color: rgb(8, 97, 199);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 8px rgba(9, 105, 218, 0.3);
+}
+
+.btn-danger {
+    background-color: #f00b52;
+    border: none;
+    color: white;
 }
 
 .btn-danger:hover {
+    background-color: #b20909;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 4px 8px rgba(240, 11, 82, 0.3);
 }
 
-/* Container */
+.btn-info {
+    background-color: rgb(9, 105, 218);
+    border: none;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: rgb(8, 97, 199);
+}
+
+.btn-secondary {
+    background-color: rgb(59, 59, 59);
+    border: none;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #404040;
+}
+
+.btn-warning {
+    background-color: #f00b52;
+    border: none;
+    color: white;
+}
+
+.btn-warning:hover {
+    background-color: #b20909;
+}
+
+/* Container - Prevent horizontal overflow */
 .container {
     padding: 20px;
+    max-width: 100%;
+    overflow-x: hidden;
 }
+
+/* Main content wrapper */
+body {
+    overflow-x: hidden;
+}
+
+/* Ensure no horizontal scroll on mobile */
+@media (max-width: 1200px) {
+    .container {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+}
+
+/* Table column widths for better layout */
+.table th:nth-child(1) { width: 8%; min-width: 80px; } /* ID/ISBN */
+.table th:nth-child(2) { width: 12%; min-width: 100px; } /* Category/Book Name */
+.table th:nth-child(3) { width: 8%; min-width: 60px; } /* Image/Customer */
+.table th:nth-child(4) { width: 15%; min-width: 120px; } /* Name/Rating */
+.table th:nth-child(5) { width: 10%; min-width: 80px; } /* Author/Comment */
+.table th:nth-child(6) { width: 8%; min-width: 80px; } /* Security/Date */
+.table th:nth-child(7) { width: 8%; min-width: 80px; } /* Rent/Actions */
+.table th:nth-child(8) { width: 8%; min-width: 80px; } /* Price */
+.table th:nth-child(9) { width: 5%; min-width: 50px; } /* Qty */
+.table th:nth-child(10) { width: 8%; min-width: 80px; } /* Status */
+.table th:nth-child(11) { width: 10%; min-width: 100px; } /* Actions */
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -201,5 +378,21 @@ body {
     
     .table tbody td {
         padding: 8px;
+    }
+    
+    /* Hide some columns on very small screens */
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Hide more columns on mobile */
+    .table th:nth-child(5),
+    .table td:nth-child(5),
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        display: none;
     }
 }

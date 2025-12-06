@@ -4,14 +4,13 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 $getBook = searchBooks($con, $search);
 ?>
 <script>
-document.title = "Book Categories | Book Rental";
+document.title = "Search Results for '<?php echo htmlspecialchars($search); ?>' | Book Rental";
 </script>
 <main class="px-4 row py-3 container-fluid">
     <div class="d-flex justify-content-center flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom">
-        <h1 class="h2">Searched Books</h1>
+        <h1 class="h2">Search Results for "<?php echo htmlspecialchars($search); ?>"</h1>
     </div>
     <?php
-  $getBook = getBook($con);
   if (count($getBook) > 0) {
   ?>
     <div class="row gy-3 text-center ">
@@ -38,7 +37,11 @@ document.title = "Book Categories | Book Rental";
         <?php } ?>
     </div>
     <?php } else {
-    echo "No Book Found";
+    if (!empty($search)) {
+        echo '<div class="alert alert-info text-center">No books found for: "' . htmlspecialchars($search) . '"</div>';
+    } else {
+        echo '<div class="alert alert-warning text-center">Please enter a search term</div>';
+    }
   } ?>
 </main>
 <?php require(__DIR__ . '/../includes/footer.php') ?>

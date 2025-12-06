@@ -13,7 +13,7 @@ require(__DIR__ . '/function.php');
     <!-- Icon -->
     <link rel="shortcut icon" href="Img/icon.png" type="image/x-icon" />
     <!-- Default CSS -->
-    <link rel="stylesheet" href="css/Style.css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
     <!-- Bootstrap -->
     <link id="theme" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Font Awesome Fonts-->

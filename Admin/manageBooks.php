@@ -144,10 +144,10 @@ require('topNav.php');
             <div class="col-sm-8">
 
                 <!-- ISBN -->
-                <div class="form-outline mb-4 ms-5">
-                    <input type="text" name="ISBN" value="<?php echo $ISBN ?>" id="Book name" class="form-control"
+                <div class="mb-3">
+                    <label for="ISBN" class="form-label">ISBN</label>
+                    <input type="text" name="ISBN" value="<?php echo $ISBN ?>" id="ISBN" class="form-control"
                         required />
-                    <label class="form-label" for="Book name">Enter book ISBN</label>
                 </div>
             </div>
             <div class="col-sm">
@@ -172,40 +172,40 @@ require('topNav.php');
         </div>
 
         <!-- Book Name -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="text" name="name" value="<?php echo $name ?>" id="Book name" class="form-control" required />
-            <label class="form-label" for="Book name">Enter book name</label>
+        <div class="mb-3">
+            <label for="name" class="form-label">Book Name</label>
+            <input type="text" name="name" value="<?php echo $name ?>" id="name" class="form-control" required />
         </div>
 
         <!-- Book Author -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="text" name="author" value="<?php echo $author ?>" id="Book name" class="form-control"
+        <div class="mb-3">
+            <label for="author" class="form-label">Author</label>
+            <input type="text" name="author" value="<?php echo $author ?>" id="author" class="form-control"
                 required />
-            <label class="form-label" for="Book name">Enter book author name</label>
         </div>
 
         <!-- security -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="number" name="security" value="<?php echo $security ?>" id="Book name" class="form-control"
+        <div class="mb-3">
+            <label for="security" class="form-label">Security Charges</label>
+            <input type="number" name="security" value="<?php echo $security ?>" id="security" class="form-control"
                 required />
-            <label class="form-label" for="Book name">Enter book security charges</label>
         </div>
 
         <!-- rent -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="number" name="rent" value="<?php echo $rent ?>" id="Book name" class="form-control" required />
-            <label class="form-label" for="Book name">Enter book rent Cost</label>
+        <div class="mb-3">
+            <label for="rent" class="form-label">Rent Cost (per day)</label>
+            <input type="number" name="rent" value="<?php echo $rent ?>" id="rent" class="form-control" required />
         </div>
 
         <!-- qty -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="number" name="qty" value="<?php echo $qty ?>" id="Book name" class="form-control" required />
-            <label class="form-label" for="Book name">Enter book quantity</label>
+        <div class="mb-3">
+            <label for="qty" class="form-label">Quantity</label>
+            <input type="number" name="qty" value="<?php echo $qty ?>" id="qty" class="form-control" required />
         </div>
         <!-- img -->
-        <div class="form-outline mb-4 mx-5">
-            <label class="form-label ms-2 p-1" for="Book name">Enter book image</label>
-            <input type="file" name="img" id="Book name" class="form-control" />
+        <div class="mb-3">
+            <label for="img" class="form-label">Book Image</label>
+            <input type="file" name="img" id="img" class="form-control" <?php echo $id > 0 ? '' : 'required' ?> />
             <?php if (!empty($img) && file_exists(BOOK_IMAGE_SERVER_PATH . $img)): ?>
                 <div class="mt-2">
                     <p class="small text-muted">Current image:</p>
@@ -216,17 +216,17 @@ require('topNav.php');
         </div>
 
         <!-- short_desc -->
-        <div class="form-outline mb-4 mx-5">
-            <textarea name="short_desc" id="Book name" class="form-control"
+        <div class="mb-3">
+            <label for="short_desc" class="form-label">Short Description</label>
+            <textarea name="short_desc" id="short_desc" class="form-control" rows="3"
                 required><?php echo $short_desc ?></textarea>
-            <label class="form-label" for="Book name">Enter book short description</label>
         </div>
 
         <!-- description -->
-        <div class="form-outline mb-4 mx-5">
-            <textarea name="description" id="Book name" class="form-control"
+        <div class="mb-3">
+            <label for="description" class="form-label">Full Description</label>
+            <textarea name="description" id="description" class="form-control" rows="5"
                 required><?php echo $description ?></textarea>
-            <label class="form-label" for="Book name">Enter book description</label>
         </div>
         <div class="mb-1 d-flex justify-content-center field_error">
             <?php echo $msg ?>

@@ -95,9 +95,20 @@ function getBook($con, $limitCount = 8)
  */
 function searchBooks($con, $searchKeyword)
 {
+  // Xóa khoảng trắng và làm sạch từ khóa tìm kiếm
   $searchKeyword = trim($searchKeyword);
+  $searchKeyword = mysqli_real_escape_string($con, $searchKeyword);
+  
+  // Nếu từ khóa rỗng, trả về mảng rỗng
+  if (empty($searchKeyword)) {
+    return [];
+  }
+  
+  // Tìm kiếm theo ký tự trong tên sách hoặc tác giả
   $query = "SELECT * FROM books WHERE status = 1 
-          AND (name LIKE '%$searchKeyword%' OR author LIKE '%$searchKeyword%')";
+          AND (name LIKE '%$searchKeyword%' OR author LIKE '%$searchKeyword%')
+          ORDER BY name ASC";
+  
   $queryResult = mysqli_query($con, $query);
   
   if (!$queryResult) {
@@ -109,6 +120,148 @@ function searchBooks($con, $searchKeyword)
     $searchResults[] = $bookRecord;
   }
   return $searchResults;
+}
+
+/**
+ * Kiểm tra user đã feedback cho cuốn sách trong đơn hàng chưa
+ * @param mysqli $con - Kết nối database
+ * @param int $orderId - ID đơn hàng
+ * @param int $bookId - ID sách
+ * @param int $userId - ID user
+ * @return bool - True nếu đã feedback, False nếu chưa
+ */
+function hasUserFeedback($con, $orderId, $bookId, $userId) {
+  // Check if feedback table exists
+  $tableCheck = mysqli_query($con, "SHOW TABLES LIKE 'feedback'");
+  if (mysqli_num_rows($tableCheck) == 0) {
+    return false; // Table doesn't exist, no feedback possible
+  }
+  
+  $orderId = (int)$orderId;
+  $bookId = (int)$bookId;
+  $userId = (int)$userId;
+  
+  $query = "SELECT id FROM feedback WHERE order_id = $orderId AND book_id = $bookId AND user_id = $userId LIMIT 1";
+  $result = mysqli_query($con, $query);
+  
+  return (mysqli_num_rows($result) > 0);
+}
+
+/**
+ * Lưu feedback của user
+ * @param mysqli $con - Kết nối database
+ * @param int $orderId - ID đơn hàng
+ * @param int $bookId - ID sách
+ * @param int $userId - ID user
+ * @param int $rating - Đánh giá (1-5)
+ * @param string $comment - Bình luận
+ * @return bool - True nếu thành công, False nếu thất bại
+ */
+function saveFeedback($con, $orderId, $bookId, $userId, $rating, $comment) {
+  // Auto-create feedback table if it doesn't exist
+  $createTableSQL = "CREATE TABLE IF NOT EXISTS `feedback` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `order_id` int(11) NOT NULL,
+    `book_id` int(11) NOT NULL,
+    `user_id` int(11) NOT NULL,
+    `rating` tinyint(1) NOT NULL COMMENT '1-5 stars',
+    `comment` text DEFAULT NULL,
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_feedback` (`order_id`, `book_id`, `user_id`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+  mysqli_query($con, $createTableSQL);
+  
+  $orderId = (int)$orderId;
+  $bookId = (int)$bookId;
+  $userId = (int)$userId;
+  $rating = (int)$rating;
+  $comment = mysqli_real_escape_string($con, trim($comment));
+  
+  // Validate rating
+  if ($rating < 1 || $rating > 5) {
+    return false;
+  }
+  
+  $query = "INSERT INTO feedback (order_id, book_id, user_id, rating, comment) 
+            VALUES ($orderId, $bookId, $userId, $rating, '$comment')";
+  
+  return mysqli_query($con, $query);
+}
+
+/**
+ * Lấy tất cả feedback cho admin
+ * @param mysqli $con - Kết nối database
+ * @return array - Mảng chứa tất cả feedback
+ */
+function getAllFeedbacks($con) {
+  // Check if feedback table exists
+  $tableCheck = mysqli_query($con, "SHOW TABLES LIKE 'feedback'");
+  if (mysqli_num_rows($tableCheck) == 0) {
+    return []; // Table doesn't exist, return empty array
+  }
+  
+  $query = "SELECT f.*, b.name as book_name, b.author, u.name as user_name, u.email, o.id as order_id
+            FROM feedback f
+            JOIN books b ON f.book_id = b.id
+            JOIN users u ON f.user_id = u.id
+            JOIN orders o ON f.order_id = o.id
+            ORDER BY f.created_at DESC";
+  
+  $result = mysqli_query($con, $query);
+  $feedbacks = [];
+  
+  while ($row = mysqli_fetch_assoc($result)) {
+    $feedbacks[] = $row;
+  }
+  
+  return $feedbacks;
+}
+
+/**
+ * Lấy feedback của một cuốn sách
+ * @param mysqli $con - Kết nối database
+ * @param int $bookId - ID sách
+ * @return array - Mảng chứa feedback và thông tin thống kê
+ */
+function getBookFeedbacks($con, $bookId) {
+  // Check if feedback table exists
+  $tableCheck = mysqli_query($con, "SHOW TABLES LIKE 'feedback'");
+  if (mysqli_num_rows($tableCheck) == 0) {
+    return [
+      'feedbacks' => [],
+      'avg_rating' => 0,
+      'total_feedbacks' => 0
+    ]; // Table doesn't exist, return empty data
+  }
+  
+  $bookId = (int)$bookId;
+  
+  // Lấy tất cả feedback của sách
+  $query = "SELECT f.*, u.name as user_name
+            FROM feedback f
+            JOIN users u ON f.user_id = u.id
+            WHERE f.book_id = $bookId
+            ORDER BY f.created_at DESC";
+  
+  $result = mysqli_query($con, $query);
+  $feedbacks = [];
+  
+  while ($row = mysqli_fetch_assoc($result)) {
+    $feedbacks[] = $row;
+  }
+  
+  // Tính trung bình rating
+  $avgQuery = "SELECT AVG(rating) as avg_rating, COUNT(*) as total_feedbacks
+               FROM feedback WHERE book_id = $bookId";
+  $avgResult = mysqli_query($con, $avgQuery);
+  $stats = mysqli_fetch_assoc($avgResult);
+  
+  return [
+    'feedbacks' => $feedbacks,
+    'avg_rating' => round($stats['avg_rating'], 1),
+    'total_feedbacks' => $stats['total_feedbacks']
+  ];
 }
 
 /**
