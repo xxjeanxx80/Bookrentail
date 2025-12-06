@@ -1,0 +1,22 @@
+/* MAIN CSS IMPORT FILE
+-------------------------------------------------------------------------------------------------- */
+/* 
+ * This file imports all CSS components in the correct order.
+ * To customize the entire theme, modify variables.css only.
+ * 
+ * Import Order:
+ * 1. Variables (must be first - contains CSS custom properties)
+ * 2. Base styles and utilities
+ * 3. Component-specific styles
+ * 4. Responsive design (must be last - media queries override)
+ */
+
+@import url('variables.css');
+@import url('utilities.css');
+@import url('navbar.css');
+@import url('carousel.css');
+@import url('cards.css');
+@import url('footer.css');
+@import url('scroll-to-top.css');
+@import url('feedback.css');
+@import url('responsive.css');
