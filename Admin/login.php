@@ -54,7 +54,7 @@ if (isset($_POST['submit'])) {
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- Default CSS -->
-    <link rel="stylesheet" href="../assets/css/Style.css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
     <!-- Bootstrap CSS -->
     <link id="theme" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Font Awesome Fonts-->
