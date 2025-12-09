@@ -108,4 +108,71 @@
     </div>
 </div>
 
+<!--------------------------------------------CUSTOMER FEEDBACKS CONTAINER-------------------------------------------------->
+<div class="container mb-5 mt-5">
+    <h2 class="fs-2 fw-bold text-center">Customer Feedbacks</h2>
+    <hr />
+    <div class="row">
+        <?php
+        $feedbacks = getAllFeedbacks($con);
+        if (!empty($feedbacks)):
+            // Hiển thị tối đa 6 feedback mới nhất
+            $displayFeedbacks = array_slice($feedbacks, 0, 6);
+            foreach ($displayFeedbacks as $feedback):
+        ?>
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0"><?php echo htmlspecialchars($feedback['book_name']); ?></h6>
+                        <small class="text-muted"><?php echo date('M j, Y', strtotime($feedback['created_at'])); ?></small>
+                    </div>
+                    
+                    <!-- Rating Stars -->
+                    <div class="mb-2">
+                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                            <i class="fas fa-star <?php echo $i <= $feedback['rating'] ? 'text-warning' : 'text-muted'; ?>"></i>
+                        <?php endfor; ?>
+                        <small class="text-muted">(<?php echo $feedback['rating']; ?>/5)</small>
+                    </div>
+                    
+                    <!-- Comment -->
+                    <p class="card-text">
+                        <?php echo !empty($feedback['comment']) ? htmlspecialchars(substr($feedback['comment'], 0, 150)) . (strlen($feedback['comment']) > 150 ? '...' : '') : 'No comment provided'; ?>
+                    </p>
+                    
+                    <!-- Customer Info -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-user"></i> <?php echo htmlspecialchars($feedback['user_name']); ?>
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-book"></i> <?php echo htmlspecialchars($feedback['author']); ?>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php 
+            endforeach;
+        else:
+        ?>
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle"></i>
+                No customer feedbacks available yet. Be the first to share your experience!
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+    
+    <?php if (!empty($feedbacks) && count($feedbacks) > 6): ?>
+    <div class="text-center mt-3">
+        <a href="feedbacks.php" class="btn btn-outline-primary">
+            View All Feedbacks <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    <?php endif; ?>
+</div>
+
 <?php require(__DIR__ . '/../includes/footer.php') ?>
