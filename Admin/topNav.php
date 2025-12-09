@@ -37,7 +37,7 @@ if (!isset($_SESSION['ADMIN_LOGIN']) || $_SESSION['ADMIN_LOGIN'] != 'yes') {
     <!-- Navbar - Bootstrap 5 structure like customer header -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow">
         <div class="container-fluid">
-            <a class="navbar-brand" href="categories.php">
+            <a class="navbar-brand" href="index.php">
                 <img src="../assets/img/icon.png" alt="logo" height="40" />
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
