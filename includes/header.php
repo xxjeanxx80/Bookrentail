@@ -16,12 +16,12 @@ if (!isset($_SESSION['USER_LOGIN'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Icon -->
     <link rel="shortcut icon" href="../assets/img/logois.png" type="image/x-icon" />
-    <!-- Default CSS -->
-    <link rel="stylesheet" href="../assets/css/main.css" />
     <!-- Bootstrap -->
     <link id="theme" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Font Awesome Fonts-->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css" />
+    <!-- Customer CSS - Easy Configuration -->
+    <link rel="stylesheet" href="../assets/css/customer.css?v=<?php echo time(); ?>" />
     <!-- Bootstrap JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Default JS-->
@@ -29,7 +29,7 @@ if (!isset($_SESSION['USER_LOGIN'])) {
     <title>Home | Book Rental</title>
 </head>
 
-<body>
+<body class="customer-site">
     <section id="#navbar">
         <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow lh-1">
             <a class="navbar-brand img-fluid ms-2" href="index.php">
