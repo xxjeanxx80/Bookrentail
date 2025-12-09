@@ -1,146 +1,94 @@
-/* Body and container styles */
+/* ============================================================
+   ADMIN PANEL CSS - BOOKRENTAIL
+   ============================================================
+   
+   📌 MỤC LỤC:
+   1. CSS VARIABLES (Dễ dàng thay đổi màu sắc)
+   2. BODY & LAYOUT
+   3. NAVBAR (Header navigation)
+   4. SIDEBAR (Nếu cần)
+   5. TABLES (Bảng dữ liệu)
+   6. CARDS (Thẻ nội dung)
+   7. FORMS (Form nhập liệu)
+   8. BUTTONS (Các nút)
+   9. IMAGES (Hình ảnh)
+   10. RESPONSIVE (Điều chỉnh theo màn hình)
+   
+   ============================================================ */
+
+/* ============================================================
+   1. CSS VARIABLES - THAY ĐỔI MÀU SẮC TẠI ĐÂY
+   ============================================================ */
+:root {
+    /* === MÀU CHÍNH === */
+    --primary-color: rgb(9, 105, 218);       /* Màu xanh chính */
+    --primary-hover: rgb(8, 97, 199);        /* Màu xanh khi hover */
+    
+    /* === MÀU PHỤ === */
+    --secondary-color: rgb(59, 59, 59);      /* Màu xám đậm */
+    --secondary-hover: #404040;              /* Màu xám khi hover */
+    
+    /* === MÀU NGUY HIỂM (Delete, Cancel) === */
+    --danger-color: #f00b52;                 /* Màu đỏ */
+    --danger-hover: #b20909;                 /* Màu đỏ đậm khi hover */
+    
+    /* === MÀU NỀN === */
+    --bg-light: #f8f9fa;                     /* Nền sáng */
+    --bg-white: #ffffff;                     /* Nền trắng */
+    --bg-hover: #f8f9fa;                     /* Nền khi hover */
+    
+    /* === MÀU CHỮ === */
+    --text-dark: #000000;                    /* Chữ đen */
+    --text-light: #ffffff;                   /* Chữ trắng */
+    --text-muted: rgba(255,255,255,0.9);     /* Chữ mờ */
+    
+    /* === SHADOW (Bóng đổ) === */
+    --shadow-light: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-medium: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-heavy: 2px 2px 30px rgba(0, 0, 0, 0.2);
+    
+    /* === BORDER RADIUS (Bo góc) === */
+    --radius-small: 6px;
+    --radius-medium: 8px;
+    --radius-large: 10px;
+    
+    /* === SPACING (Khoảng cách) === */
+    --navbar-padding-top: 50px;              /* Padding top cho body */
+    --container-padding: 20px;               /* Padding container */
+    
+    /* === TRANSITION (Hiệu ứng chuyển động) === */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+}
+
+/* ============================================================
+   2. BODY & LAYOUT
+   ============================================================ */
 body {
-    background-color: #f8f9fa;
+    background-color: var(--bg-light);
     font-family: 'Roboto', sans-serif;
     overflow-x: hidden;
-    padding-top: 50px;
+    padding-top: var(--navbar-padding-top);
 }
 
-@media (min-width: 991.98px) {
-    main {
-        padding-left: 240px;
-    }
-}
-
-/* Sidebar */
-.sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    padding: 58px 0 0;
-    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 5%), 0 2px 10px 0 rgb(0 0 0 / 5%);
-    width: 240px;
-    z-index: 600;
-}
-
-@media (max-width: 991.98px) {
-    .sidebar {
-        width: 100%;
-    }
-}
-
-.sidebar .active {
-    border-radius: 5px;
-    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
-}
-
-.sidebar-sticky {
-    position: relative;
-    top: 0;
-    height: calc(100vh - 48px);
-    padding-top: 0.5rem;
+.container {
+    padding: var(--container-padding);
+    max-width: 100%;
     overflow-x: hidden;
-    overflow-y: auto;
 }
 
-/* Admin Logo */
-.admin-logo {
-    transition: transform 0.3s ease;
-    padding: 5px;
-    border-radius: 5px;
-}
-
-.admin-logo:hover {
-    transform: scale(1.05);
-}
-
-/* Navbar Styles - Override MDB styles */
+/* ============================================================
+   3. NAVBAR (Header Navigation)
+   ============================================================ */
 .navbar.navbar-light {
-    background-color: rgb(9, 105, 218) !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    background-color: var(--primary-color) !important;
+    box-shadow: var(--shadow-light) !important;
     padding: 0.5rem 0 !important;
 }
 
 .navbar-brand {
     margin-right: 2rem;
     padding: 0.5rem 0;
-}
-
-.nav-link {
-    color: rgba(255,255,255,0.9) !important;
-    font-weight: 500;
-    padding: 0.75rem 1rem !important;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    margin: 0 0.25rem;
-}
-
-.nav-link:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: #fff !important;
-    transform: translateY(-1px);
-}
-
-.nav-link.active {
-    background-color: rgba(255,255,255,0.15);
-    color: #fff !important;
-}
-
-.navbar-toggler {
-    border: none;
-    color: #fff;
-    padding: 0.5rem;
-}
-
-.navbar-toggler:focus {
-    box-shadow: none;
-}
-
-.navbar-toggler i {
-    font-size: 1.25rem;
-}
-
-/* User Dropdown */
-.btn-group .btn-light {
-    background-color: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-}
-
-.btn-group .btn-light:hover {
-    background-color: rgba(255,255,255,0.2);
-    border-color: rgba(255,255,255,0.3);
-    color: #fff;
-}
-
-.dropdown-menu {
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    border: 1px solid rgba(0,0,0,0.1);
-    margin-top: 0.5rem;
-}
-
-.dropdown-item {
-    padding: 0.5rem 1rem;
-    transition: background-color 0.2s ease;
-}
-
-.dropdown-item:hover {
-    background-color: #f8f9fa;
-}
-
-/* Book Details Image Styling */
-.book-detail-image {
-    max-width: 100%;
-    height: auto;
-    max-height: 300px;
-    object-fit: contain;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 /* Force horizontal navbar layout */
@@ -157,45 +105,108 @@ body {
     display: inline-block !important;
 }
 
+/* Nav Links */
+.nav-link {
+    color: var(--text-muted) !important;
+    font-weight: 500;
+    padding: 0.75rem 1rem !important;
+    border-radius: var(--radius-small);
+    transition: var(--transition-normal);
+    margin: 0 0.25rem;
+}
+
+.nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: var(--text-light) !important;
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
+    background-color: rgba(255,255,255,0.15);
+    color: var(--text-light) !important;
+}
+
+/* Navbar Toggler (Mobile) */
+.navbar-toggler {
+    border: none;
+    color: var(--text-light);
+    padding: 0.5rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-toggler i {
+    font-size: 1.25rem;
+}
+
 /* Admin dropdown positioning */
 .navbar .ms-auto {
     margin-left: auto !important;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .navbar {
-        padding: 0.75rem 0;
-    }
-    
-    .nav-link {
-        margin: 0.25rem 0;
-        padding: 0.75rem 1rem !important;
-    }
-    
-    .navbar-brand {
-        margin-right: 1rem;
-    }
-    
-    .book-detail-image {
-        max-height: 200px;
-    }
+/* Dropdown Menu */
+.dropdown-menu {
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-light);
+    border: 1px solid rgba(0,0,0,0.1);
+    margin-top: 0.5rem;
 }
 
-/* Table styles for admin pages */
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: var(--transition-fast);
+}
+
+.dropdown-item:hover {
+    background-color: var(--bg-hover);
+}
+
+/* ============================================================
+   4. SIDEBAR (Nếu cần sử dụng)
+   ============================================================ */
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding: 58px 0 0;
+    box-shadow: var(--shadow-light);
+    width: 240px;
+    z-index: 600;
+}
+
+.sidebar .active {
+    border-radius: 5px;
+    box-shadow: var(--shadow-medium);
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 48px);
+    padding-top: 0.5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* ============================================================
+   5. TABLES (Bảng dữ liệu)
+   ============================================================ */
 .table {
-    background: white;
-    border-radius: 8px;
+    background: var(--bg-white);
+    border-radius: var(--radius-medium);
     overflow: hidden;
-    box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-heavy);
     width: 100%;
     max-width: 100%;
     table-layout: fixed;
 }
 
 .table thead {
-    background-color: rgb(9, 105, 218);
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--text-light);
 }
 
 .table thead th {
@@ -216,7 +227,7 @@ body {
 }
 
 .table tbody tr:hover {
-    background-color: #f8f9fa;
+    background-color: var(--bg-hover);
 }
 
 /* Responsive table container */
@@ -225,41 +236,27 @@ body {
     -webkit-overflow-scrolling: touch;
 }
 
-/* Admin page headers */
-.container h1 {
-    color: #000000;
-    font-weight: 600;
-    margin-bottom: 2rem;
-}
+/* Table column widths */
+.table th:nth-child(1) { width: 8%; min-width: 80px; }
+.table th:nth-child(2) { width: 12%; min-width: 100px; }
+.table th:nth-child(3) { width: 8%; min-width: 60px; }
+.table th:nth-child(4) { width: 15%; min-width: 120px; }
+.table th:nth-child(5) { width: 10%; min-width: 80px; }
+.table th:nth-child(6) { width: 8%; min-width: 80px; }
+.table th:nth-child(7) { width: 8%; min-width: 80px; }
+.table th:nth-child(8) { width: 8%; min-width: 80px; }
+.table th:nth-child(9) { width: 5%; min-width: 50px; }
+.table th:nth-child(10) { width: 8%; min-width: 80px; }
+.table th:nth-child(11) { width: 10%; min-width: 100px; }
 
-.container h1 hr {
-    border-top: 2px solid #000000;
-    opacity: 0.3;
-}
-
-.dropdown-menu {
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    border: 1px solid rgba(0,0,0,0.1);
-    margin-top: 0.5rem;
-}
-
-.dropdown-item {
-    padding: 0.5rem 1rem;
-    transition: background-color 0.2s ease;
-}
-
-.dropdown-item:hover {
-    background-color: #f8f9fa;
-}
-
-
-/* Card Styles */
+/* ============================================================
+   6. CARDS (Thẻ nội dung)
+   ============================================================ */
 .card {
     border: none;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-medium);
+    transition: var(--transition-normal);
 }
 
 .card:hover {
@@ -267,106 +264,180 @@ body {
     transform: translateY(-2px);
 }
 
-/* Form Styles */
+/* ============================================================
+   7. FORMS (Form nhập liệu)
+   ============================================================ */
 .form-control:focus {
-    border-color: rgb(9, 105, 218);
+    border-color: var(--primary-color);
     box-shadow: 0 0 0 0.2rem rgba(9, 105, 218, 0.25);
 }
 
+/* ============================================================
+   8. BUTTONS (Các nút)
+   ============================================================ */
+
+/* Primary Button (Xanh) */
 .btn-primary {
-    background-color: rgb(9, 105, 218);
+    background-color: var(--primary-color);
     border: none;
-    transition: all 0.3s ease;
+    transition: var(--transition-normal);
 }
 
 .btn-primary:hover {
-    background-color: rgb(8, 97, 199);
+    background-color: var(--primary-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(9, 105, 218, 0.3);
 }
 
-.btn-danger {
-    background-color: #f00b52;
+/* Info Button (Xanh) */
+.btn-info {
+    background-color: var(--primary-color);
     border: none;
-    color: white;
+    color: var(--text-light);
+}
+
+.btn-info:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Secondary Button (Xám) */
+.btn-secondary {
+    background-color: var(--secondary-color);
+    border: none;
+    color: var(--text-light);
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-hover);
+}
+
+/* Danger Button (Đỏ - Delete) */
+.btn-danger {
+    background-color: var(--danger-color);
+    border: none;
+    color: var(--text-light);
 }
 
 .btn-danger:hover {
-    background-color: #b20909;
+    background-color: var(--danger-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(240, 11, 82, 0.3);
 }
 
-.btn-info {
-    background-color: rgb(9, 105, 218);
-    border: none;
-    color: white;
-}
-
-.btn-info:hover {
-    background-color: rgb(8, 97, 199);
-}
-
-.btn-secondary {
-    background-color: rgb(59, 59, 59);
-    border: none;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #404040;
-}
-
+/* Warning Button (Đỏ - Cảnh báo) */
 .btn-warning {
-    background-color: #f00b52;
+    background-color: var(--danger-color);
     border: none;
-    color: white;
+    color: var(--text-light);
 }
 
 .btn-warning:hover {
-    background-color: #b20909;
+    background-color: var(--danger-hover);
 }
 
-/* Container - Prevent horizontal overflow */
-.container {
-    padding: 20px;
+/* User Dropdown Button */
+.btn-group .btn-light {
+    background-color: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--text-light);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-small);
+    transition: var(--transition-normal);
+}
+
+.btn-group .btn-light:hover {
+    background-color: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.3);
+    color: var(--text-light);
+}
+
+/* ============================================================
+   9. IMAGES (Hình ảnh)
+   ============================================================ */
+
+/* Admin Logo */
+.admin-logo {
+    transition: var(--transition-normal);
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.admin-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Book Detail Image */
+.book-detail-image {
     max-width: 100%;
-    overflow-x: hidden;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-medium);
 }
 
-/* Main content wrapper */
-body {
-    overflow-x: hidden;
+/* ============================================================
+   10. PAGE HEADERS (Tiêu đề trang)
+   ============================================================ */
+.container h1 {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 2rem;
 }
 
-/* Ensure no horizontal scroll on mobile */
+.container h1 hr {
+    border-top: 2px solid var(--text-dark);
+    opacity: 0.3;
+}
+
+/* ============================================================
+   11. RESPONSIVE (Điều chỉnh theo màn hình)
+   ============================================================ */
+
+/* Large screens (> 991px) */
+@media (min-width: 991.98px) {
+    main {
+        padding-left: 240px;
+    }
+}
+
+/* Medium screens (< 1200px) */
 @media (max-width: 1200px) {
     .container {
         padding: 15px;
     }
 }
 
-@media (max-width: 768px) {
-    .container {
-        padding: 10px;
+/* Tablets (< 991px) */
+@media (max-width: 991.98px) {
+    .sidebar {
+        width: 100%;
     }
 }
 
-/* Table column widths for better layout */
-.table th:nth-child(1) { width: 8%; min-width: 80px; } /* ID/ISBN */
-.table th:nth-child(2) { width: 12%; min-width: 100px; } /* Category/Book Name */
-.table th:nth-child(3) { width: 8%; min-width: 60px; } /* Image/Customer */
-.table th:nth-child(4) { width: 15%; min-width: 120px; } /* Name/Rating */
-.table th:nth-child(5) { width: 10%; min-width: 80px; } /* Author/Comment */
-.table th:nth-child(6) { width: 8%; min-width: 80px; } /* Security/Date */
-.table th:nth-child(7) { width: 8%; min-width: 80px; } /* Rent/Actions */
-.table th:nth-child(8) { width: 8%; min-width: 80px; } /* Price */
-.table th:nth-child(9) { width: 5%; min-width: 50px; } /* Qty */
-.table th:nth-child(10) { width: 8%; min-width: 80px; } /* Status */
-.table th:nth-child(11) { width: 10%; min-width: 100px; } /* Actions */
-
-/* Responsive */
+/* Mobile (< 768px) */
 @media (max-width: 768px) {
+    .navbar {
+        padding: 0.75rem 0;
+    }
+    
+    .nav-link {
+        margin: 0.25rem 0;
+        padding: 0.75rem 1rem !important;
+    }
+    
+    .navbar-brand {
+        margin-right: 1rem;
+    }
+    
+    .book-detail-image {
+        max-height: 200px;
+    }
+    
+    .container {
+        padding: 10px;
+    }
+    
     .table {
         font-size: 0.85rem;
     }
@@ -380,15 +451,16 @@ body {
         padding: 8px;
     }
     
-    /* Hide some columns on very small screens */
+    /* Hide some columns on small screens */
     .table th:nth-child(6),
     .table td:nth-child(6) {
         display: none;
     }
 }
 
+/* Small Mobile (< 576px) */
 @media (max-width: 576px) {
-    /* Hide more columns on mobile */
+    /* Hide more columns on very small screens */
     .table th:nth-child(5),
     .table td:nth-child(5),
     .table th:nth-child(6),
