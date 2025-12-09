@@ -1,0 +1,416 @@
+/* ============================================================
+   CUSTOMER WEBSITE CSS - BOOKRENTAIL
+   ============================================================
+   
+   📌 MỤC LỤC:
+   1. CSS VARIABLES (Dễ dàng thay đổi màu sắc)
+   2. BODY & LAYOUT
+   3. NAVBAR (Menu điều hướng)
+   4. CAROUSEL (Slider hình ảnh)
+   5. BOOK CARDS (Thẻ sách)
+   6. FEEDBACKS (Đánh giá khách hàng)
+   7. FORMS (Form đăng nhập/đăng ký)
+   8. BUTTONS (Các nút bấm)
+   9. FOOTER (Chân trang)
+   10. SCROLL TO TOP (Nút cuộn lên)
+   11. RESPONSIVE (Điều chỉnh theo màn hình)
+   
+   ============================================================ */
+
+/* ============================================================
+   1. CSS VARIABLES - THAY ĐỔI GIAO DIỆN TẠI ĐÂY
+   ============================================================ */
+:root {
+    /* === MÀU CHÍNH === */
+    --primary-color: rgb(9, 105, 218);       /* Màu xanh chính */
+    --primary-hover: rgb(8, 97, 199);        /* Màu xanh khi hover */
+    
+    /* === MÀU PHỤ === */
+    --secondary-color: #f00b52;              /* Màu đỏ cho nút quan trọng */
+    --secondary-hover: #b20909;              /* Màu đỏ khi hover */
+    
+    /* === MÀU NỀN === */
+    --bg-light: #f8f9fa;                     /* Nền sáng */
+    --bg-white: #ffffff;                     /* Nền trắng */
+    --bg-dark: #404040;                      /* Nền tối */
+    --bg-black: #000000;                     /* Nền đen */
+    
+    /* === MÀU CHỮ === */
+    --text-dark: #000000;                    /* Chữ đen */
+    --text-light: #ffffff;                   /* Chữ trắng */
+    --text-muted: rgb(212, 214, 216);        /* Chữ xám nhạt */
+    --text-gray: rgb(59, 59, 59);            /* Chữ xám đậm */
+    
+    /* === MÀU OVERLAY (Lớp phủ) === */
+    --overlay-color: rgba(92, 95, 236, 0.8);  /* Lớp phủ trên hình ảnh */
+    
+    /* === MÀU CẢNH BÁO/LỖI === */
+    --error-color: red;                      /* Màu lỗi */
+    --success-color: #28a745;                /* Màu thành công */
+    
+    /* === KÍCH THƯỚC CAROUSEL === */
+    --carousel-height: 29rem;                /* Chiều cao carousel desktop */
+    --carousel-height-mobile: 26rem;         /* Chiều cao carousel mobile */
+    --carousel-height-small: 18.8rem;        /* Chiều cao carousel small */
+    --carousel-image-height: 30rem;          /* Chiều cao ảnh carousel */
+    --carousel-image-height-mobile: 26rem;   /* Chiều cao ảnh carousel mobile */
+    --carousel-image-height-small: 23rem;    /* Chiều cao ảnh carousel small */
+    
+    /* === KÍCH THƯỚC NÚT === */
+    --scroll-btn-size: 2rem;                 /* Kích thước nút scroll to top */
+    --scroll-btn-radius: 1.25rem;            /* Bo góc nút scroll */
+    --rent-btn-width: 60%;                   /* Chiều rộng nút rent */
+    --rent-btn-radius: 200px;                /* Bo góc nút rent */
+    
+    /* === KHOẢNG CÁCH === */
+    --carousel-margin-bottom: 4rem;          /* Margin bottom carousel */
+    --carousel-caption-bottom: 3rem;         /* Vị trí caption carousel */
+    --scroll-btn-right: 2%;                  /* Vị trí nút scroll từ phải */
+    --scroll-btn-bottom: 4%;                 /* Vị trí nút scroll từ dưới */
+    --login-margin-top: 8px;                 /* Margin top form login */
+    
+    /* === HIỆU ỨNG CHUYỂN ĐỘNG === */
+    --transition-fast: 0.3s;                 /* Chuyển động nhanh */
+    --transition-medium: 0.5s;               /* Chuyển động trung bình */
+    --transition-ease: all ease;             /* Loại chuyển động */
+    
+    /* === FONT SIZE === */
+    --carousel-font-large: 25px;             /* Font lớn carousel */
+    --carousel-font-medium: 20px;            /* Font vừa carousel */
+    --carousel-font-small: 15px;             /* Font nhỏ carousel */
+    --carousel-font-tiny: 9px;               /* Font rất nhỏ carousel */
+    --placeholder-font-large: 3.5rem;        /* Font placeholder lớn */
+    --placeholder-font-normal: 1.125rem;     /* Font placeholder normal */
+    --footer-font-size: 14px;                /* Font footer */
+    
+    /* === BÓNG ĐỔ === */
+    --shadow-light: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-medium: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-heavy: 2px 2px 30px rgba(0, 0, 0, 0.2);
+    
+    /* === BORDER RADIUS === */
+    --radius-small: 6px;
+    --radius-medium: 8px;
+    --radius-large: 10px;
+    --radius-circle: 50%;
+    
+    /* === Z-INDEX === */
+    --z-index-carousel-caption: 10;
+    --z-index-scroll-btn: 500;
+}
+
+/* ============================================================
+   2. BODY & LAYOUT
+   ============================================================ */
+body.customer-site {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    overflow-x: hidden;
+}
+
+/* ============================================================
+   3. NAVBAR (Menu điều hướng)
+   ============================================================ */
+body.customer-site .navbar {
+    background-color: var(--bg-white);
+    box-shadow: var(--shadow-light);
+}
+
+body.customer-site .navbar-brand {
+    font-weight: bold;
+    color: var(--primary-color) !important;
+}
+
+body.customer-site .nav-link {
+    color: var(--text-dark) !important;
+    transition: var(--transition-fast);
+}
+
+body.customer-site .nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+/* ============================================================
+   4. CAROUSEL (Slider hình ảnh)
+   ============================================================ */
+.carousel {
+    height: var(--carousel-height);
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+}
+
+.carousel-inner {
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-item {
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-item img,
+.carousel-item img.img-fluid {
+    height: var(--carousel-image-height);
+    width: 100% !important;
+    max-width: none !important;
+    object-fit: cover;
+}
+
+.carousel-caption {
+    bottom: var(--carousel-caption-bottom);
+    z-index: var(--z-index-carousel-caption);
+}
+
+.carousel-caption h5 {
+    font-size: var(--carousel-font-large);
+}
+
+.carousel-caption p {
+    font-size: var(--carousel-font-medium);
+}
+
+/* ============================================================
+   5. BOOK CARDS (Thẻ sách)
+   ============================================================ */
+body.customer-site .product {
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-heavy);
+    transition: var(--transition-fast);
+    overflow: hidden;
+}
+
+body.customer-site .product:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+body.customer-site .card-img-top {
+    border-radius: var(--radius-medium) var(--radius-medium) 0 0;
+}
+
+body.customer-site .overlay {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-color: var(--overlay-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: var(--transition-fast);
+}
+
+body.customer-site .product:hover .overlay {
+    opacity: 1;
+}
+
+body.customer-site .rent-btn {
+    background-color: var(--secondary-color);
+    color: var(--text-light);
+    padding: 10px 20px;
+    border-radius: var(--rent-btn-radius);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+body.customer-site .rent-btn:hover {
+    background-color: var(--secondary-hover);
+    color: var(--text-light);
+    transform: scale(1.05);
+}
+
+/* ============================================================
+   6. FEEDBACKS (Đánh giá khách hàng)
+   ============================================================ */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 4px;
+    margin: 10px 0;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    cursor: pointer;
+    color: #ddd;
+    transition: var(--transition-fast);
+    font-size: 20px;
+}
+
+.star-rating input[type="radio"]:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffc107;
+}
+
+.feedback-card {
+    border: none;
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-light);
+    transition: var(--transition-fast);
+}
+
+.feedback-card:hover {
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+}
+
+/* ============================================================
+   7. FORMS (Form đăng nhập/đăng ký)
+   ============================================================ */
+body.customer-site .form-control {
+    border: 1px solid #ddd;
+    border-radius: var(--radius-small);
+    transition: var(--transition-fast);
+}
+
+body.customer-site .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(9, 105, 218, 0.25);
+}
+
+body.customer-site .form-label {
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+/* ============================================================
+   8. BUTTONS (Các nút bấm)
+   ============================================================ */
+body.customer-site .btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transition: var(--transition-fast);
+}
+
+body.customer-site .btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+body.customer-site .btn-danger {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    transition: var(--transition-fast);
+}
+
+body.customer-site .btn-danger:hover {
+    background-color: var(--secondary-hover);
+    border-color: var(--secondary-hover);
+    transform: translateY(-2px);
+}
+
+/* ============================================================
+   9. FOOTER (Chân trang)
+   ============================================================ */
+footer {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    padding: 2rem 0;
+    font-size: var(--footer-font-size);
+}
+
+footer a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+footer a:hover {
+    color: var(--primary-color);
+}
+
+/* ============================================================
+   10. SCROLL TO TOP (Nút cuộn lên)
+   ============================================================ */
+#scrollBtn {
+    position: fixed;
+    bottom: var(--scroll-btn-bottom);
+    right: var(--scroll-btn-right);
+    z-index: var(--z-index-scroll-btn);
+}
+
+#ScrollUpBtn {
+    width: var(--scroll-btn-size);
+    height: var(--scroll-btn-size);
+    border-radius: var(--scroll-btn-radius);
+    background-color: var(--primary-color);
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: none;
+}
+
+#ScrollUpBtn:hover {
+    background-color: var(--primary-hover);
+    transform: scale(1.1);
+}
+
+/* ============================================================
+   11. RESPONSIVE (Điều chỉnh theo màn hình)
+   ============================================================ */
+
+/* Tablets */
+@media (max-width: 768px) {
+    .carousel {
+        height: var(--carousel-height-mobile);
+    }
+    
+    .carousel-item img {
+        height: var(--carousel-image-height-mobile);
+    }
+    
+    .carousel-caption h5 {
+        font-size: var(--carousel-font-medium);
+    }
+    
+    .carousel-caption p {
+        font-size: var(--carousel-font-small);
+    }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+    .carousel {
+        height: var(--carousel-height-small);
+    }
+    
+    .carousel-item img {
+        height: var(--carousel-image-height-small);
+    }
+    
+    .carousel-caption h5 {
+        font-size: var(--carousel-font-small);
+    }
+    
+    .carousel-caption p {
+        font-size: var(--carousel-font-tiny);
+    }
+    
+    .rent-btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+    .product {
+        margin-bottom: 1rem;
+    }
+    
+    .card-img-top {
+        height: 250px;
+    }
+}
