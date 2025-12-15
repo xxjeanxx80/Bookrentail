@@ -15,7 +15,7 @@ if (isset($_SESSION['ADMIN_LOGIN'])) {
 
 $msg = '';
 if (isset($_POST['submit'])) {
-    $email = trim($_POST['email']);
+    $email = mysqli_real_escape_string($con, trim($_POST['email']));
     $password = trim($_POST['password']);
     $rememberMe = isset($_POST['remember_me']) ? true : false;
     

@@ -64,14 +64,14 @@ if ($id > 0 && !isset($_POST['submit'])) {
 // Xử lý submit form
 if (isset($_POST['submit'])) {
     $category_id = (int)$_POST['category_id'];
-    $ISBN = trim($_POST['ISBN']);
-    $name = trim($_POST['name']);
-    $author = trim($_POST['author']);
+    $ISBN = mysqli_real_escape_string($con, trim($_POST['ISBN']));
+    $name = mysqli_real_escape_string($con, trim($_POST['name']));
+    $author = mysqli_real_escape_string($con, trim($_POST['author']));
     $security = (int)$_POST['security'];
     $rent = (int)$_POST['rent'];
     $qty = (int)$_POST['qty'];
-    $short_desc = trim($_POST['short_desc']);
-    $description = trim($_POST['description']);
+    $short_desc = mysqli_real_escape_string($con, trim($_POST['short_desc']));
+    $description = mysqli_real_escape_string($con, trim($_POST['description']));
     
     // Check if book name already exists (except current book)
     $checkSql = mysqli_query($con, "SELECT id FROM books WHERE name='$name'");

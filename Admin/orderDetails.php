@@ -24,21 +24,54 @@ if ($orderId == 0) {
 // Xử lý cập nhật trạng thái đơn hàng
 if (isset($_POST['status_id'])) {
     $statusId = (int)$_POST['status_id'];
+    $error = '';
     
-    // Nếu đơn hàng bị hủy hoặc trả lại, tăng lại số lượng sách
-    if (in_array($statusId, [4, 6])) {
-        $qtyRes = mysqli_query($con, "SELECT books.id FROM orders
-                                       JOIN order_detail ON orders.id=order_detail.order_id
-                                       JOIN books ON order_detail.book_id=books.id
-                                       WHERE order_detail.order_id=$orderId");
-        if ($qtyRow = mysqli_fetch_assoc($qtyRes)) {
-            mysqli_query($con, "UPDATE books SET qty = qty + 1 WHERE id={$qtyRow['id']}");
+    // Kiểm tra nếu muốn chuyển sang Processing (2) hoặc Shipped (3)
+    if (in_array($statusId, [2, 3])) {
+        $checkResult = canApproveOrder($con, $orderId);
+        if (!$checkResult['can_approve']) {
+            $error = $checkResult['message'];
         }
     }
     
-    mysqli_query($con, "UPDATE orders SET order_status=$statusId WHERE id=$orderId");
-    header("Location: orderDetails.php?id=$orderId");
-    exit;
+    // Nếu có lỗi, hiển thị thông báo
+    if (!empty($error)) {
+        // Lấy lại thông tin đơn hàng để hiển thị
+        $orderSql = "SELECT orders.*, name, status_name FROM orders
+                     JOIN order_detail ON orders.id=order_detail.order_id
+                     JOIN books ON order_detail.book_id=books.id
+                     JOIN order_status ON orders.order_status=order_status.id
+                     WHERE orders.id=$orderId";
+        $orderResult = mysqli_query($con, $orderSql);
+        $order = mysqli_fetch_assoc($orderResult);
+        $canChange = !in_array($order['status_name'], ['Returned', 'Cancelled', 'Delivered']);
+    } else {
+        // Nếu đơn hàng bị hủy hoặc trả lại, tăng lại số lượng sách
+        if (in_array($statusId, [4, 6])) {
+            $qtyRes = mysqli_query($con, "SELECT books.id FROM orders
+                                           JOIN order_detail ON orders.id=order_detail.order_id
+                                           JOIN books ON order_detail.book_id=books.id
+                                           WHERE order_detail.order_id=$orderId");
+            if ($qtyRow = mysqli_fetch_assoc($qtyRes)) {
+                mysqli_query($con, "UPDATE books SET qty = qty + 1 WHERE id={$qtyRow['id']}");
+            }
+        }
+        
+        // Nếu chuyển sang Processing hoặc Shipped, trừ đi 1 quyển sách
+        if (in_array($statusId, [2, 3])) {
+            $qtyRes = mysqli_query($con, "SELECT books.id FROM orders
+                                           JOIN order_detail ON orders.id=order_detail.order_id
+                                           JOIN books ON order_detail.book_id=books.id
+                                           WHERE order_detail.order_id=$orderId");
+            if ($qtyRow = mysqli_fetch_assoc($qtyRes)) {
+                mysqli_query($con, "UPDATE books SET qty = qty - 1 WHERE id={$qtyRow['id']}");
+            }
+        }
+        
+        mysqli_query($con, "UPDATE orders SET order_status=$statusId WHERE id=$orderId");
+        header("Location: orderDetails.php?id=$orderId");
+        exit;
+    }
 }
 
 // Lấy thông tin đơn hàng
@@ -121,6 +154,12 @@ require('topNav.php');
                     <h5 class="mb-0">Change Order Status</h5>
                 </div>
                 <div class="card-body">
+                    <?php if (isset($error) && !empty($error)): ?>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <?php echo htmlspecialchars($error); ?>
+                        </div>
+                    <?php endif; ?>
                     <?php if ($canChange): ?>
                     <form method="post">
                         <div class="mb-3">

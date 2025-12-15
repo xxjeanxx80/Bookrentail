@@ -463,3 +463,48 @@ function deleteAllAdminTokens($con, $adminId)
   $adminId = (int)$adminId;
   mysqli_query($con, "DELETE FROM admin_tokens WHERE admin_id=$adminId");
 }
+
+/**
+ * Kiểm tra xem đơn hàng có thể được duyệt không (dựa trên số lượng sách còn lại)
+ * @param mysqli $con - Kết nối database
+ * @param int $orderId - ID của đơn hàng
+ * @return array - Mảng chứa thông tin kết quả: ['can_approve' => bool, 'message' => string, 'qty' => int]
+ */
+function canApproveOrder($con, $orderId)
+{
+    $orderId = (int)$orderId;
+    
+    // Lấy thông tin sách và số lượng trong đơn hàng
+    $query = "SELECT b.id, b.name, b.qty, od.quantity 
+              FROM orders o
+              JOIN order_detail od ON o.id = od.order_id
+              JOIN books b ON od.book_id = b.id
+              WHERE o.id = $orderId";
+    
+    $result = mysqli_query($con, $query);
+    
+    if (!$result || mysqli_num_rows($result) == 0) {
+        return [
+            'can_approve' => false,
+            'message' => 'Đơn hàng không tồn tại',
+            'qty' => 0
+        ];
+    }
+    
+    $book = mysqli_fetch_assoc($result);
+    $availableQty = $book['qty'];
+    
+    if ($availableQty <= 0) {
+        return [
+            'can_approve' => false,
+            'message' => 'Hết sách, không thể xác nhận đơn',
+            'qty' => $availableQty
+        ];
+    }
+    
+    return [
+        'can_approve' => true,
+        'message' => 'Sách còn sẵn có, có thể xác nhận đơn',
+        'qty' => $availableQty
+    ];
+}

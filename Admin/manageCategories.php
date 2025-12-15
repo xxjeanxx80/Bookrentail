@@ -32,7 +32,7 @@ if ($id > 0 && !isset($_POST['submit'])) {
 
 // Xử lý submit form
 if (isset($_POST['submit'])) {
-    $category = trim($_POST['category']);
+    $category = mysqli_real_escape_string($con, trim($_POST['category']));
     $categories = $category; // Giữ giá trị từ POST để hiển thị lại trong form nếu có lỗi
     
     // Check duplicate (trừ category hiện tại nếu đang edit)
