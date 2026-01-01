@@ -185,19 +185,6 @@ document.title = "My Orders | Book Rental";
     </script>
 </div>
 
-<!--------------------------------------------------DARK MODE BUTTON----------------------------------------------------------->
-<div id="dark-btn">
-    <button onclick="DarkMode()" id="dark-btn" title="Toggle Light/Dark Mode">
-        <span><i class="fas fa-adjust fa-lg text-white"></i></span>
-    </button>
-    <script>
-    //Dark Mode
-    function DarkMode() {
-        let element = document.body;
-        element.classList.toggle("dark-mode");
-    }
-    </script>
-</div>
 </body>
 
 </html>

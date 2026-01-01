@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Kết nối cơ sở dữ liệu
-$databaseConnection = mysqli_connect("localhost", "root", "", "mini_project");
+$databaseConnection = mysqli_connect("localhost", "root", "123456", "mini_project");
 if ($databaseConnection->connect_error) {
     die("Connection failed: " . $databaseConnection->connect_error);
 }
